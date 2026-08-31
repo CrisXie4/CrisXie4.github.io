@@ -772,11 +772,10 @@ pwa:
 comment:
   # Which commenting system to use(e.g. waline or waline,twikoo)
   # 使用哪个评论系统（例如： waline or waline,twikoo ）
-  # TODO: 部署好自己的评论后端后再填写，如 use: twikoo
-  use: "" # waline, twikoo, valine, artalk, giscus # Up to two comment systems can be turned on at the same time
+  use: giscus # waline, twikoo, valine, artalk, giscus # Up to two comment systems can be turned on at the same time
   # Whether to display the hot comment switch.
-  # 是否显示热门评论开关
-  commentBarrage: true
+  # 是否显示热门评论开关（弹幕组件不支持 giscus，保持关闭）
+  commentBarrage: false
   # Lazy load
   # 懒加载评论区
   lazyload: false
@@ -835,13 +834,15 @@ artalk:
   option: # options
 # Giscus: https://solitude.js.org/configuration/comment/giscus
 giscus:
-  repo: # GitHub repository name
-  repo_id: # GitHub repository ID
-  category_id: # GitHub repository category ID
+  repo: CrisXie4/CrisXie4.github.io # GitHub repository name
+  repo_id: R_kgDOUJQbdQ # GitHub repository ID
+  category_id: DIC_kwDOUJQbdc4DEjUY # GitHub repository category ID
   theme:
     light: light
     dark: dark
   option:
+    "data-strict": "1" # 严格标题匹配
+    "data-lang": "zh-CN" # 界面语言
 # --------------------------- end ---------------------------
 
 # --------------------------- start ---------------------------
