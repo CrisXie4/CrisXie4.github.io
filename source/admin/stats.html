@@ -117,7 +117,7 @@ let token='';
 
 function cfg(){
   const mode=ls.get('umami_mode')||'self';
-  const base=ls.get('umami_base')||(mode==='self'?'http://38.76.168.127:1378/umami/api':'https://api.umami.is/v1');
+  const base=ls.get('umami_base')||(mode==='self'?'https://umami.crisxie.top/api':'https://api.umami.is/v1');
   return {mode,base};
 }
 
@@ -170,7 +170,7 @@ function resetCfg(){ ls.del('umami_token'); showLogin({message:''}); }
 function showLogin(e){
   $('dash').classList.add('hide'); $('login').classList.remove('hide');
   renderMode();
-  $('inBase').value=ls.get('umami_base')||'http://38.76.168.127:1378/umami/api';
+  $('inBase').value=ls.get('umami_base')||'https://umami.crisxie.top/api';
   $('inUser').value=ls.get('umami_user')||'admin';
   $('inSite').value=ls.get('umami_site')||SITE_DEFAULT;
   if(e&&e.message==='KEY') $('err').textContent='登录失败：账号/密码或密钥不正确';
