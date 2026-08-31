@@ -738,9 +738,10 @@ extends:
   # 插入到 head
   head:
     - <link rel="stylesheet" href="/schedule/schedule.css">
-    - <link rel="stylesheet" href="/css/custom-fonts.css">
     - <link rel="stylesheet" href="/css/custom.css">
     - <script defer src="https://cloud.umami.is/script.js" data-website-id="366bba8d-6f92-4d05-a8a8-2c5068b27578"></script>
+  # 18.7MB 的全量中文字体已移除（好卡元凶），改用系统字体栈
+  #  - <link rel="stylesheet" href="/css/custom-fonts.css">
   #  - <script src="https://cdn.bootcdn.net/ajax/libs/pace/1.2.4/pace.min.js"></script>
 
   # Insert in body
