@@ -744,7 +744,7 @@ extends:
     - <link rel="stylesheet" href="/schedule/schedule.css">
     - <link rel="stylesheet" href="/css/custom.css">
     - <script defer src="http://38.76.168.127:1378/umami/script.js" data-website-id="b1442814-c569-441c-8c2e-9ebcf46da3ec"></script>
-    <!-- 自建 Umami 统计；待 umami.crisxie.top 域名+HTTPS 配好后切回 https 并可恢复 GitHub Pages 的统计 -->
+    # 自建 Umami 统计；待 umami.crisxie.top 域名+HTTPS 配好后切回 https 并可恢复 GitHub Pages 的统计
   # 18.7MB 的全量中文字体已移除（好卡元凶），改用系统字体栈
   #  - <link rel="stylesheet" href="/css/custom-fonts.css">
   #  - <script src="https://cdn.bootcdn.net/ajax/libs/pace/1.2.4/pace.min.js"></script>
