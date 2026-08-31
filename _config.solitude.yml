@@ -1002,6 +1002,7 @@ CDN:
     # artalk_js:
     # blueimp_md5:
     # busuanzi_js:
+    busuanzi_js: /js/bsz.js # 自托管不蒜子脚本，避免外部 CDN 被浏览器拦截
     # chart_js:
     # color_thief:
     # fancyapps_css:
