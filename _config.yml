@@ -34,7 +34,9 @@ archive_dir: archives
 category_dir: categories
 code_dir: downloads/code
 i18n_dir: :lang
+# 后台页面原样输出，禁止 Hexo 渲染（否则 config.yml 会被转成 config.json）
 skip_render:
+  - "admin/**"
 
 # Writing
 new_post_name: :title.md # File name of new posts

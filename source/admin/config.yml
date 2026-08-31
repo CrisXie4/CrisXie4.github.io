@@ -1,0 +1,29 @@
+backend:
+  name: github
+  repo: CrisXie4/CrisXie4.github.io
+  branch: main
+  # Sveltia 支持用 GitHub 个人访问令牌（PAT）直接登录，无需 OAuth 后端服务
+  # 令牌权限：仅限本仓库 Contents 读写
+
+site_url: https://crisxie4.github.io
+locale: zh_Hans
+
+# 图片统一存进 GitHub 仓库，随仓库发布
+media_folder: source/img/uploads
+public_folder: /img/uploads
+
+collections:
+  - name: posts
+    label: 文章
+    label_singular: 文章
+    folder: source/_posts
+    create: true
+    slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
+    summary: "{{title}} - {{day}}/{{month}}/{{year}}"
+    fields:
+      - { name: title, label: 标题, widget: string }
+      - { name: date, label: 发布时间, widget: datetime }
+      - { name: tags, label: 标签, widget: list, required: false, default: [], add_label: 添加标签 }
+      - { name: categories, label: 分类, widget: list, required: false, default: [], add_label: 添加分类 }
+      - { name: cover, label: 封面图（可选）, widget: image, required: false }
+      - { name: body, label: 正文, widget: markdown }
