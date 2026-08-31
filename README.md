@@ -41,9 +41,11 @@ npx hexo server    # 本地预览 http://localhost:4000
 - `source/_data/kit.yml`、`source/_data/tlink.yaml`：视频精选与 AI 导航数据，`tlink.yaml` 中部分图片仍指向原作者图床，建议逐步替换。
 - `source/privacy/index.md`：隐私政策按你的实际服务调整。
 
-## 写新文章
+## 写新文章 / 发随笔
 
 ```bash
-npx hexo new post "文章标题"
-# 生成到 source/_posts/，编辑后重新运行 hexo server 即可
+npx hexo new post "文章标题"   # 长文章：生成到 source/_posts/，编辑后推送
+bash note.sh 随笔内容          # 一句话动态：自动加时间戳并推送上线
+bash note.sh --dry 随笔内容    # 预览模式，只看不发
+# 随笔数据在 source/_data/brevity.yml，想配图/音乐可手动编辑该文件
 ```
