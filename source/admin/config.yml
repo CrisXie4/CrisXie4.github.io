@@ -59,6 +59,35 @@ collections:
                   - { name: descr, label: 一句话介绍, widget: string }
                   - { name: topimg, label: 卡片大图地址, widget: string, required: false }
 
+  # ============ 作品页（source/_data/works.yml）============
+  - name: works
+    label: 作品
+    files:
+      - name: works-data
+        label: 作品卡片
+        file: source/_data/works.yml
+        fields:
+          - { name: banner_suffix, label: banner_suffix, widget: hidden, default: "" }
+          - name: links
+            label: 作品分组
+            widget: list
+            add_label: 添加分组
+            fields:
+              - { name: class_name, label: 分组名称, widget: string }
+              - { name: descr, label: 分组描述, widget: string, required: false }
+              - { name: type, label: 展示样式, widget: select, options: [card, item], default: card }
+              - { name: suffix, label: suffix, widget: string, required: false }
+              - name: link_list
+                label: 作品列表
+                widget: list
+                add_label: 添加作品
+                fields:
+                  - { name: name, label: 作品名称, widget: string }
+                  - { name: link, label: 网址（GitHub 或其他）, widget: string }
+                  - { name: avatar, label: 图标地址, widget: string }
+                  - { name: descr, label: 一句话介绍, widget: string }
+                  - { name: topimg, label: 卡片大图地址, widget: string, required: false }
+
   # ============ 关于页（source/_data/about.yml）============
   - name: about
     label: 关于页

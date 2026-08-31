@@ -1,0 +1,47 @@
+banner_suffix:
+links:
+  - class_name: 开源项目
+    descr: 全部托管在 GitHub，点卡片直达仓库
+    type: card
+    suffix:
+    link_list:
+      - name: teacher-website
+        link: https://github.com/CrisXie4/teacher-website
+        avatar: https://github.com/CrisXie4.png
+        descr: ⭐24 · HTML 项目
+        topimg: https://opengraph.githubassets.com/1/CrisXie4/teacher-website
+      - name: ModelBridge
+        link: https://github.com/CrisXie4/ModelBridge
+        avatar: https://github.com/CrisXie4.png
+        descr: ⭐6 · 一个支持大部分国产模型的 CLI
+        topimg: https://opengraph.githubassets.com/1/CrisXie4/ModelBridge
+      - name: songs-downloader
+        link: https://github.com/CrisXie4/songs-downloader
+        avatar: https://github.com/CrisXie4.png
+        descr: ⭐6 · 免费下载音乐的工具
+        topimg: https://opengraph.githubassets.com/1/CrisXie4/songs-downloader
+      - name: netease-songlist-download
+        link: https://github.com/CrisXie4/netease-songlist-download
+        avatar: https://github.com/CrisXie4.png
+        descr: ⭐2 · 网易云歌单下载
+        topimg: https://opengraph.githubassets.com/1/CrisXie4/netease-songlist-download
+      - name: free-aiapi-manage
+        link: https://github.com/CrisXie4/free-aiapi-manage
+        avatar: https://github.com/CrisXie4.png
+        descr: ⭐2 · AI API 管理
+        topimg: https://opengraph.githubassets.com/1/CrisXie4/free-aiapi-manage
+      - name: Auto-get-CF-clearance
+        link: https://github.com/CrisXie4/Auto-get-CF-clearance
+        avatar: https://github.com/CrisXie4.png
+        descr: ⭐1 · 自动获取 CF clearance
+        topimg: https://opengraph.githubassets.com/1/CrisXie4/Auto-get-CF-clearance
+      - name: xiaozhi-Flex-Control
+        link: https://github.com/CrisXie4/xiaozhi-Flex-Control
+        avatar: https://github.com/CrisXie4.png
+        descr: ⭐1 · 小智远程控制
+        topimg: https://opengraph.githubassets.com/1/CrisXie4/xiaozhi-Flex-Control
+      - name: LeadTester
+        link: https://github.com/CrisXie4/LeadTester
+        avatar: https://github.com/CrisXie4.png
+        descr: 压测工具
+        topimg: https://opengraph.githubassets.com/1/CrisXie4/LeadTester

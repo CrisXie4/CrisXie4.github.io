@@ -54,9 +54,11 @@ nav:
       全部分类: /categories/ || fas fa-clone
       全部标签: /tags/ || fas fa-tags
     随笔: /essay/
+    作品: /works/
     友情链接: /links/
     我的:
       关于我: /about/ || fas fa-user
+      中转站: https://6geapi.com || fas fa-right-left
       隐私协议: /privacy/ || fa-solid fa-shield-halved
 
   # Right button
@@ -96,8 +98,10 @@ hometop:
       Git:
         img: /img/icons/git-original.svg
         color: "#df5b40"
-  group: [] # 首页大字下方的快捷按钮，需要时按此格式添加：
-    # 热门: /tags/热门/ || fas fa-fire || linear-gradient(to right,#f65,#ffbf37)
+  group: # 首页大字下方的快捷按钮，格式：名称: 链接 || 图标 || 渐变背景
+    作品: /works/ || fas fa-cube || linear-gradient(to right,#C2543E,#E3A857)
+    中转站: https://6geapi.com || fas fa-right-left || linear-gradient(to right,#B58A4C,#8A6E52)
+    友情链接: /links/ || fas fa-user-group || linear-gradient(to right,#8C4A3E,#5C3A32)
   recommendList:
     enable: false
 # --------------------------- end ---------------------------
@@ -786,8 +790,8 @@ comment:
   # Sidebar displays the total number of comments
   # Sidebar 显示总评论数
   sidebar: true
-  # PV
-  pv: true
+  # PV（giscus 不提供 PV，文章阅读量由 busuanzi 承担，此处置 false 避免空壳）
+  pv: false
   # Avatar
   avatar: https://gravatar.com/avatar
   # Hot comment tips
@@ -928,7 +932,7 @@ recent_comments:
 
 # --------------------------- start ---------------------------
 # Busuanzi
-busuanzi: false
+busuanzi: true # 不蒜子：文章阅读量 + 侧栏 PV/UV 统计
 # 0: Original / 1: Custom
 # 0: 原版 / 1: 自定义版
 busuanzi_use: 0
