@@ -39,10 +39,7 @@ nav:
         <circle cx="7"  cy="17" r="4"/>
         <circle cx="17" cy="17" r="4"/>
       </svg>
-  group:
-    快捷入口: # name
-      归档: /archives/ || fas fa-folder-closed
-      标签: /tags/ || fas fa-tags
+  group: # 左侧盒子分组，格式 '名称: 链接 || 图片地址'（图标必须是图片，不能用字体图标）
 
   # Menu
   menu:
@@ -51,7 +48,7 @@ nav:
       全部文章: /archives/ || fas fa-folder-closed # item name: link
       全部分类: /categories/ || fas fa-clone
       全部标签: /tags/ || fas fa-tags
-    友情链接: /links/ || fas fa-user-group
+    友情链接: /links/
     我的:
       关于我: /about/ || fas fa-user
       隐私协议: /privacy/ || fa-solid fa-shield-halved
@@ -82,22 +79,22 @@ hometop:
       # - 我希望能够改变世界
     icon:
       HTML: # name
-        img: https://i.postimg.cc/vBWVnY8q/html.png # url
+        img: /img/icons/html5-original.svg # url
         color: "#e9572b" # color
       JS:
-        img: https://i.postimg.cc/3N10Ltv2/js.png
+        img: /img/icons/javascript-original.svg
         color: "#f7cb4f"
       Docker:
-        img: https://i.postimg.cc/8Pk6Fg24/docker.png
+        img: /img/icons/docker-original.svg
         color: "#57b6e6"
       Flutter:
-        img: https://i.postimg.cc/hPC7T3gB/flutter.png
+        img: /img/icons/flutter-original.svg
         color: "#ffffff"
       WebPack:
-        img: https://i.postimg.cc/dVLZBmtT/webpack.png
+        img: /img/icons/webpack-original.svg
         color: "#2e3a41"
       Git:
-        img: https://i.postimg.cc/nhgjwjCS/git.png
+        img: /img/icons/git-original.svg
         color: "#df5b40"
   group: [] # 首页大字下方的快捷按钮，需要时按此格式添加：
     # 热门: /tags/热门/ || fas fa-fire || linear-gradient(to right,#f65,#ffbf37)
