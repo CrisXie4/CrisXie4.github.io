@@ -43,7 +43,6 @@ nav:
     快捷入口: # name
       归档: /archives/ || fas fa-folder-closed
       标签: /tags/ || fas fa-tags
-      音乐: /music/ || fas fa-music
 
   # Menu
   menu:
@@ -52,28 +51,19 @@ nav:
       全部文章: /archives/ || fas fa-folder-closed # item name: link
       全部分类: /categories/ || fas fa-clone
       全部标签: /tags/ || fas fa-tags
-    友链:
-      # 朋友圈: /moments/ || fas fa-wifi
-      友情链接: /links/ || fas fa-user-group
-      宝藏博主: javascript:travelling() || fas fa-gift
+    友情链接: /links/ || fas fa-user-group
     我的:
       关于我: /about/ || fas fa-user
-      在线工具: /tlink/ || fas fa-toolbox
       隐私协议: /privacy/ || fa-solid fa-shield-halved
 
   # Right button
   # 右侧按钮
   right:
     random: true # Random article / 随机文章按钮
-    custom:
-      - name: 弹幕 # 名字
-        url: /message/ # 跳转链接
-        icon: fas fa-message # 图标<i class="fa-solid fa-message"></i>
-        onclick: # 点击事件
-        id: travellings_button # id
-      # - name: 图集 # 名字
-      #   url: /gallery/ # 跳转链接
-      #   icon: fas fa-images # 图标
+    custom: []
+      # - name: 弹幕 # 名字
+      #   url: /message/ # 跳转链接
+      #   icon: fas fa-message # 图标
       #   onclick: # 点击事件
       #   id: travellings_button # id
 # --------------------------- end ---------------------------
@@ -109,11 +99,8 @@ hometop:
       Git:
         img: https://i.postimg.cc/nhgjwjCS/git.png
         color: "#df5b40"
-  group:
-    热门: /tags/热门/ || fas fa-fire || linear-gradient(to right,#f65,#ffbf37)
-    视频: /kit/ || fa-solid fa-film || linear-gradient(to right,#36d1dc,#5b86e5)
-    图集: /gallery/ || fas fa-camera-retro || linear-gradient(to right,#ff9966,#ff5e62)
-    随笔: /essay/ || fas fa-pen-fancy || linear-gradient(to right,#667eea,#764ba2)
+  group: [] # 首页大字下方的快捷按钮，需要时按此格式添加：
+    # 热门: /tags/热门/ || fas fa-fire || linear-gradient(to right,#f65,#ffbf37)
   recommendList:
     enable: false
 # --------------------------- end ---------------------------
@@ -543,13 +530,9 @@ footer:
       归档: /archives/
       分类: /categories/
       标签: /tags/
-    娱乐:
-      音乐馆: /music/
-      评论: /message/
-      相册: /gallery/
 
   # 随机友链
-  randomlink: true # 随机友链
+  randomlink: false # 随机友链
 
   # 备案
   beian:
@@ -597,7 +580,7 @@ meting_api: "https://meting.qjqq.cn/?server=:server&type=:type&id=:id&auth=:auth
 # Capsule music
 # 音乐胶囊
 capsule:
-  enable: true
+  enable: false
   # 歌单 ID / 单曲 ID
   id: 8792942606
   # 服务商：netease / qq / xiami / kugou / baidu
@@ -892,8 +875,8 @@ search:
 # Music Page
 # 音乐馆
 music:
-  enable: true
-  # 歌单 ID / 单曲 ID
+  enable: false
+  # TODO: 想开音乐馆时，改成你自己的网易云歌单 ID，并在 source/music/ 重建页面
   id: 8792942606
   # 服务商：netease / qq / xiami / kugou / baidu
   server: netease
@@ -911,7 +894,7 @@ music:
 # Danmaku Page
 # 弹幕留言页面
 envelope:
-  enable: true
+  enable: false
   line: 10 # 显示行数
   speed: 20 # 播放速度
   hover: true # 鼠标悬停暂停
@@ -935,7 +918,7 @@ brevity:
 # Recent comments Page
 # 最近评论页面
 recent_comments:
-  enable: true
+  enable: false
   limit: 50 # ⚠️waline 仅支持最大50条评论 / ⚠️waline only supports a maximum of 50 comments
   cache: 0.2 # 1 = 1天 / 1 = 1 day
   page: /recentcomments/ # 最近评论页面 / recent comments page

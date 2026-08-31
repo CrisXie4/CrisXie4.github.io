@@ -1,7 +1,7 @@
 banner_suffix:
 links:
   - class_name: 框架与主题
-    descr: 本站搭建采用的原框架与主题
+    descr: 本站搭建采用的框架与主题
     type: card
     suffix:
     link_list:
@@ -10,113 +10,8 @@ links:
         avatar: https://d33wubrfki0l68.cloudfront.net/6657ba50e702d84afb32fe846bed54fba1a77add/827ae/logo.svg
         descr: 快速、简单且强大的网站框架
         topimg: https://s2.loli.net/2024/11/10/Zm5dvbLOUMr9iFk.webp
-      - name: 张洪Heo
-        link: https://blog.zhheo.com/
-        avatar: https://img.zhheo.com/i/67d8fa75943e4.webp
-        descr: 分享设计与科技生活
-        topimg: https://img.zhheo.com/i/67d8fb5f563ff.webp
       - name: Solitude
         link: https://solitude.js.org/
         avatar: https://s2.loli.net/2024/10/10/hOTRIKV4vy6EMf2.webp
         descr: 一个卡片UI主题，适用于 Hexo
         topimg: https://s2.loli.net/2025/01/21/RcNxQMy6mfliXtS.png
-  - class_name: 小伙伴
-    descr: 一些可爱的朋友🥰
-    type: item
-    suffix:
-    link_list:
-      - name: 美食天堂
-        link: https://www.foodparadise.com/
-        avatar: https://picsum.photos/100/100?random=2
-        descr: 发现美味，分享快乐
-      - name: 旅行家
-        link: https://www.traveller.com/
-        avatar: https://picsum.photos/100/100?random=3
-        descr: 环游世界，体验精彩
-      - name: 摄影部落
-        link: https://www.photographytribe.com/
-        avatar: https://picsum.photos/100/100?random=4
-        descr: 记录美好，分享感动
-      - name: 科技前沿
-        link: https://www.techfrontier.com/
-        avatar: https://picsum.photos/100/100?random=5
-        descr: 探索未来，创造奇迹
-      - name: 时尚潮流
-        link: https://www.fashiontrend.com/
-        avatar: https://picsum.photos/100/100?random=6
-        descr: 跟随时尚，定义个性
-      - name: 健康生活
-        link: https://www.healthyliving.com/
-        avatar: https://picsum.photos/100/100?random=7
-        descr: 关爱健康，享受生活
-      - name: 艺术殿堂
-        link: https://www.artpalace.com/
-        avatar: https://picsum.photos/100/100?random=8
-        descr: 领略艺术，感受美好
-      - name: 学无止境
-        link: https://www.endlesslearning.com/
-        avatar: https://picsum.photos/100/100?random=9
-        descr: 永远保持学习的心态，探索无限可能
-      - name: 游戏乐园
-        link: https://www.gameparadise.com/
-        avatar: https://picsum.photos/100/100?random=10
-        descr: 探索游戏世界，释放激情
-  - class_name: 技术伙伴
-    descr: 分享与探索技术世界
-    type: card
-    suffix:
-    link_list:
-      - name: Hexo
-        link: https://hexo.io/zh-cn/
-        avatar: https://picsum.photos/100/100?random=11
-        descr: 快速、简单且强大的网站框架
-        topimg: https://source.unsplash.com/random/300x200?sig=11
-      - name: Vercel
-        link: https://vercel.com/
-        avatar: https://picsum.photos/100/100?random=12
-        descr: 前端部署与云服务平台
-        topimg: https://source.unsplash.com/random/300x200?sig=12
-      - name: Node.js
-        link: https://nodejs.org/
-        avatar: https://picsum.photos/100/100?random=13
-        descr: 构建现代应用的运行时
-        topimg: https://source.unsplash.com/random/300x200?sig=13
-
-  - class_name: 生活乐趣
-    descr: 美食、旅游、摄影
-    type: item
-    suffix:
-    link_list:
-      - name: 美食地图
-        link: https://www.foodmap.com/
-        avatar: https://picsum.photos/100/100?random=21
-        descr: 寻找世界各地的美味
-      - name: 环游笔记
-        link: https://www.travelnotes.com/
-        avatar: https://picsum.photos/100/100?random=22
-        descr: 用脚步丈量世界
-      - name: 摄影集
-        link: https://www.photobook.com/
-        avatar: https://picsum.photos/100/100?random=23
-        descr: 分享摄影的艺术与感动
-
-  - class_name: 娱乐时光
-    descr: 游戏与动漫爱好者
-    type: card
-    suffix:
-    link_list:
-      - name: Steam
-        link: https://store.steampowered.com/
-        avatar: https://picsum.photos/100/100?random=31
-        descr: 全球最大的游戏平台
-        topimg: https://source.unsplash.com/random/300x200?sig=31
-      - name: 哔哩哔哩
-        link: https://www.bilibili.com/
-        avatar: https://picsum.photos/100/100?random=32
-        descr: 二次元与创作者社区
-        topimg: https://source.unsplash.com/random/300x200?sig=32
-      - name: Anime News
-        link: https://www.animenewsnetwork.com/
-        avatar: https://picsum.photos/100/100?random=33
-        descr: 动漫新闻与资讯
-        topimg: https://source.unsplash.com/random/300x200?sig=33
