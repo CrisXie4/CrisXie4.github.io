@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>数据看板 | 六哥</title>
+<link rel="icon" href="/img/avatar-256.png">
+<style>
+:root{--red:#C2543E;--amber:#E3A857;--brown:#8A6E52;--ink:#3a3140;--bg:#f6f2ef;--card:#fff}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--ink);min-height:100vh}
+.wrap{max-width:1080px;margin:0 auto;padding:24px 16px 60px}
+h1{font-size:22px;margin:8px 0 4px}
+.sub{color:#8a7f6f;font-size:13px;margin-bottom:20px}
+.card{background:var(--card);border-radius:14px;padding:20px;box-shadow:0 2px 10px rgba(60,40,20,.06);margin-bottom:18px}
+.row{display:flex;gap:14px;flex-wrap:wrap}
+.stat{flex:1;min-width:140px;background:var(--card);border-radius:14px;padding:18px;box-shadow:0 2px 10px rgba(60,40,20,.06)}
+.stat .n{font-size:30px;font-weight:700;color:var(--red)}
+.stat:nth-child(2) .n{color:var(--brown)}
+.stat .l{font-size:13px;color:#8a7f6f;margin-top:4px}
+.btn{background:var(--red);color:#fff;border:none;border-radius:10px;padding:10px 18px;font-size:14px;cursor:pointer}
+.btn.gray{background:#8a7f6f}
+input,select{border:1px solid #ddd;border-radius:10px;padding:10px 12px;font-size:14px;background:#fff}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{text-align:left;padding:9px 8px;border-bottom:1px solid #f0e9e2}
+th{color:#8a7f6f;font-weight:600;font-size:12px}
+.bar{background:linear-gradient(90deg,var(--red),var(--amber));height:6px;border-radius:3px}
+.url{color:#6b5d52;font-size:12px;word-break:break-all}
+.title{font-weight:600}
+.pct{color:var(--red);font-weight:700;white-space:nowrap}
+h2{font-size:16px;margin-bottom:12px}
+toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:18px}
+.hide{display:none!important}
+#login .card{max-width:460px;margin:80px auto;text-align:center}
+#login input{width:100%;margin:10px 0}
+.tip{font-size:12px;color:#a39484;margin-top:8px}
+a{color:var(--red)}
+#err{color:var(--red);font-size:13px;margin-top:10px}
+svg text{font-size:10px;fill:#a39484}
+.ref{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f0e9e2;font-size:13px}
+@media(max-width:600px){.stat{min-width:45%}.wrap{padding:16px 10px 40px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>📊 数据看板</h1>
+  <div class="sub">数据来自 Umami（真实访客统计），仅本机浏览器保存密钥</div>
+
+  <div id="login" class="hide">
+    <div class="card">
+      <h2>首次使用，填入 Umami API 密钥</h2>
+      <input id="inKey" placeholder="umami_api_key_xxx（cloud.umami.is → 设置 → API 密钥）">
+      <input id="inSite" placeholder="网站 ID">
+      <button class="btn" onclick="saveKey()">保存并查看</button>
+      <div class="tip">密钥获取：登录 <a href="https://cloud.umami.is" target="_blank">cloud.umami.is</a> → 设置 → API 密钥 → 创建。密钥仅保存在你的浏览器 localStorage，不会上传到博客仓库。</div>
+      <div id="err"></div>
+    </div>
+  </div>
+
+  <div id="dash" class="hide">
+    <div class="toolbar">
+      <select id="range" onchange="loadAll()">
+        <option value="86400000">今天</option>
+        <option value="604800000" selected>近 7 天</option>
+        <option value="2592000000">近 30 天</option>
+        <option value="7776000000">近 90 天</option>
+      </select>
+      <button class="btn gray" onclick="loadAll()">刷新</button>
+      <button class="btn gray" onclick="resetKey()">更换密钥</button>
+      <a href="https://cloud.umami.is" target="_blank" style="align-self:center;font-size:13px">Umami 官方后台 ↗</a>
+    </div>
+
+    <div class="row" id="cards"></div>
+
+    <div class="card"><h2>访问趋势（浏览量 / 访客数）</h2><div id="chart"></div></div>
+
+    <div class="card">
+      <h2>每篇文章 / 页面数据对比</h2>
+      <input id="filter" placeholder="筛选标题或路径…" style="width:100%;max-width:340px;margin-bottom:10px" oninput="renderPages()">
+      <div style="overflow-x:auto">
+      <table>
+        <thead><tr><th style="width:34%">标题 / 路径</th><th>热度</th><th style="width:60px">浏览量</th><th style="width:70px">占比</th></tr></thead>
+        <tbody id="pages"></tbody>
+      </table>
+      </div>
+    </div>
+
+    <div class="card"><h2>来源 TOP 10</h2><div id="refs"></div></div>
+  </div>
+</div>
+
+<script>
+const API='https://api.umami.is/v1';
+const SITE_DEFAULT='366bba8d-6f92-4d05-a8a8-2c5068b27578';
+let titles={};
+
+const $=id=>document.getElementById(id);
+const key=()=>localStorage.getItem('umami_api_key')||'';
+const site=()=>localStorage.getItem('umami_site')||SITE_DEFAULT;
+
+async function api(path,params){
+  const u=new URL(API+path);
+  Object.entries(params||{}).forEach(([k,v])=>u.searchParams.set(k,v));
+  const r=await fetch(u,{headers:{'x-umami-api-key':key()}});
+  if(r.status===401||r.status===403) throw new Error('KEY');
+  if(!r.ok) throw new Error('HTTP '+r.status);
+  return r.json();
+}
+
+async function saveKey(){
+  localStorage.setItem('umami_api_key',$('inKey').value.trim());
+  localStorage.setItem('umami_site',$('inSite').value.trim()||SITE_DEFAULT);
+  $('err').textContent='';
+  try{ await loadAll(); }catch(e){ showLogin(e); }
+}
+
+function resetKey(){ localStorage.removeItem('umami_api_key'); showLogin({message:''}); }
+function showLogin(e){
+  $('dash').classList.add('hide'); $('login').classList.remove('hide');
+  $('inSite').value=site();
+  if(e&&e.message==='KEY') $('err').textContent='密钥无效或已过期，请重新填入';
+  else if(e&&e.message) $('err').textContent='加载失败：'+e.message;
+}
+
+async function loadTitles(){
+  if(Object.keys(titles).length) return;
+  try{
+    const x=await (await fetch('/sitemap.xml')).text();
+    const doc=new DOMParser().parseFromString(x,'text/xml');
+    [...doc.querySelectorAll('url')].forEach(u=>{
+      const loc=u.querySelector('loc')?.textContent||'';
+      const t=u.querySelector('title')?.textContent;
+      if(loc&&t) titles[new URL(loc).pathname]=t;
+    });
+  }catch(e){}
+}
+
+function fmtTime(s){ s=Math.round(s||0); const m=Math.floor(s/60); return m? m+' 分 '+(s%60)+' 秒' : s+' 秒'; }
+
+async function loadAll(){
+  if(!key()){ showLogin({message:''}); return; }
+  $('login').classList.add('hide'); $('dash').classList.remove('hide');
+  const days=parseInt($('range').value,10);
+  const end=Date.now(), start=(days===86400000)? new Date(new Date().setHours(0,0,0,0)).getTime() : end-days;
+  try{
+    await loadTitles();
+    const [stats,pv,urls,refs]=await Promise.all([
+      api(`/websites/${site()}/stats`,{startAt:start,endAt:end}),
+      api(`/websites/${site()}/pageviews`,{startAt:start,endAt:end,unit:'day'}),
+      api(`/websites/${site()}/metrics`,{startAt:start,endAt:end,type:'url'}),
+      api(`/websites/${site()}/metrics`,{startAt:start,endAt:end,type:'referrer'}).catch(()=>[])
+    ]);
+    const v=o=>o&&typeof o==='object'&&'value'in o? o.value : (o||0);
+    $('cards').innerHTML=
+      `<div class="stat"><div class="n">${v(stats.pageviews).toLocaleString()}</div><div class="l">浏览量 PV</div></div>`+
+      `<div class="stat"><div class="n">${v(stats.visitors).toLocaleString()}</div><div class="l">访客 UV</div></div>`+
+      `<div class="stat"><div class="n">${v(stats.sessions).toLocaleString()}</div><div class="l">访问次数</div></div>`+
+      `<div class="stat"><div class="n">${fmtTime(stats.totaltime&&stats.totaltime.value/stats.sessions&&stats.sessions.value? stats.totaltime.value/stats.sessions.value :0)}</div><div class="l">平均停留</div></div>`;
+    drawChart(pv);
+    window._pages=(Array.isArray(urls)?urls:(urls&&urls.urls)||[]).map(i=>({url:i.x,n:i.y}));
+    renderPages();
+    const rl=Array.isArray(refs)?refs:[];
+    $('refs').innerHTML=rl.length? rl.slice(0,10).map(i=>`<div class="ref"><span>${(i.x||'直接访问').replace(/^https?:\/\//,'').slice(0,50)}</span><b>${i.y}</b></div>`).join('') : '<div class="tip">暂无来源数据</div>';
+  }catch(e){ showLogin(e); }
+}
+
+function renderPages(){
+  const q=($('filter').value||'').toLowerCase();
+  const rows=(window._pages||[]).filter(p=>!q||(titles[p.url]||'').toLowerCase().includes(q)||p.url.toLowerCase().includes(q));
+  const max=Math.max(1,...rows.map(r=>r.n));
+  const total=rows.reduce((s,r)=>s+r.n,0)||1;
+  $('pages').innerHTML= rows.length? rows.map(r=>{
+    const t=titles[r.url]||decodeURIComponent(r.url);
+    return `<tr><td><div class="title">${t}</div><div class="url">${r.url}</div></td>`+
+      `<td><div class="bar" style="width:${Math.round(r.n/max*100)}%"></div></td>`+
+      `<td><b>${r.n}</b></td><td class="pct">${Math.round(r.n/total*100)}%</td></tr>`;
+  }).join('') : '<tr><td colspan="4" class="tip">这个时间段还没有数据（新站数据会慢慢积累）</td></tr>';
+}
+
+function drawChart(pv){
+  const P=Array.isArray(pv.pageviews)?pv.pageviews:[], V=Array.isArray(pv.visitors)?pv.visitors:[];
+  if(!P.length){ $('chart').innerHTML='<div class="tip">暂无趋势数据</div>'; return; }
+  const W=Math.min(1000,innerWidth-60), H=200, pad=28;
+  const all=P.concat(V).map(i=>i.y); const max=Math.max(1,...all);
+  const x=i=>pad+i*(W-pad*2)/Math.max(1,P.length-1);
+  const y=val=>H-20-(H-40)*val/max;
+  const line=arr=>arr.map((p,i)=>`${i?'L':'M'}${x(i).toFixed(1)},${y(p.y).toFixed(1)}`).join(' ');
+  const area=line(P)+` L${x(P.length-1)},${H-20} L${x(0)},${H-20} Z`;
+  const labels=[P[0].x.slice(5), P[Math.floor(P.length/2)].x.slice(5), P[P.length-1].x.slice(5)];
+  $('chart').innerHTML=`<svg width="100%" viewBox="0 0 ${W} ${H}">
+    <defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C2543E" stop-opacity=".28"/><stop offset="1" stop-color="#E3A857" stop-opacity=".04"/>
+    </linearGradient></defs>
+    <path d="${area}" fill="url(#g)"/>
+    <path d="${line(P)}" fill="none" stroke="#C2543E" stroke-width="2.5"/>
+    <path d="${line(V)}" fill="none" stroke="#8A6E52" stroke-width="1.8" stroke-dasharray="4 3"/>
+    <text x="${pad}" y="${H-4}">${labels[0]}</text>
+    <text x="${W/2-14}" y="${H-4}">${labels[1]}</text>
+    <text x="${W-46}" y="${H-4}">${labels[2]}</text>
+  </svg>
+  <div class="tip"><span style="color:#C2543E">━</span> 浏览量　<span style="color:#8A6E52">╌</span> 访客数</div>`;
+}
+
+showLogin({message:''});
+loadAll();
+</script>
+</body>
+</html>
