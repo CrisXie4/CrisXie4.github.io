@@ -547,7 +547,7 @@ footer:
   # 页脚信息文字
   links:
     - name: 广告合作
-      url: tencent://message/?uin=2645939663&Site=&Menu=yes
+      url: /ads/
     - name: RSS
       url: /atom.xml
     - name: License
