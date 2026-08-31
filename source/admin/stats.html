@@ -110,8 +110,9 @@ label.fl{display:block;text-align:left;font-size:12px;color:#8a7f6f;margin-top:8
 </div>
 
 <script>
-let SITE_DEFAULT='b1442814-c569-441c-8c2e-9ebcf46da3ec';
+let SITE_DEFAULT='a9a4a6a0-a722-42b8-9699-b9e78fa69a06';
 let titles={};
+const TZ=(Intl.DateTimeFormat().resolvedOptions().timeZone||'Asia/Shanghai');
 const $=id=>document.getElementById(id);
 const ls={get:k=>localStorage.getItem(k),set:(k,v)=>localStorage.setItem(k,v),del:k=>localStorage.removeItem(k)};
 let token='';
@@ -205,7 +206,7 @@ async function loadAll(){
     await loadTitles();
     const [stats,pv,urls,refs]=await Promise.all([
       api(`/websites/${site()}/stats`,{startAt:start,endAt:end}),
-      api(`/websites/${site()}/pageviews`,{startAt:start,endAt:end,unit:'day'}),
+      api(`/websites/${site()}/pageviews`,{startAt:start,endAt:end,unit:'day',timezone:TZ}),
       api(`/websites/${site()}/metrics`,{startAt:start,endAt:end,type:'url'}),
       api(`/websites/${site()}/metrics`,{startAt:start,endAt:end,type:'referrer'}).catch(()=>[])
     ]);

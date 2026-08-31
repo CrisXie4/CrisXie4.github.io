@@ -743,7 +743,7 @@ extends:
   head:
     - <link rel="stylesheet" href="/schedule/schedule.css">
     - <link rel="stylesheet" href="/css/custom.css">
-    - <script defer src="https://umami.crisxie.top/script.js" data-website-id="b1442814-c569-441c-8c2e-9ebcf46da3ec"></script>
+    - <script defer src="https://umami.crisxie.top/script.js" data-website-id="a9a4a6a0-a722-42b8-9699-b9e78fa69a06"></script>
     # 自建 Umami 统计（HTTPS，GitHub Pages 与服务器站都正常记录）
   # 18.7MB 的全量中文字体已移除（好卡元凶），改用系统字体栈
   #  - <link rel="stylesheet" href="/css/custom-fonts.css">
