@@ -1,0 +1,7 @@
+if theme.google_adsense.enable && !theme.google_adsense.auto_ads && theme.google_adsense.aside_card
+    - var variants = theme.google_adsense.variants || {}
+    - var variantKey = item && item.startsWith('ads') ? item : 'ads'
+    - var variant = variants[variantKey] || variants['ads'] || {}
+    if variant.slot || theme.google_adsense.slot
+        .card-widget.card-adsense
+            +adsenseBlock(variantKey)

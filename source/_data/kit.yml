@@ -1,0 +1,8 @@
+- class_name: 在此填写分类名
+  description: 视频精选说明，可自行编辑 source/_data/kit.yml
+  equipment_list:
+    - name: 示例卡片
+      specification: 短视频
+      description: 在此填写视频介绍，替换为你自己的内容。
+      image: /img/default_avatar.avif
+      link: /
