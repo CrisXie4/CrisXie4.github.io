@@ -28,6 +28,8 @@ collections:
       - { name: tags, label: 标签, widget: list, required: false, default: [], add_label: 添加标签 }
       - { name: categories, label: 分类, widget: list, required: false, default: [], add_label: 添加分类 }
       - { name: cover, label: 封面图（可选）, widget: image, required: false }
+      - { name: description, label: 摘要（随笔模式显示此内容）, widget: text, required: false }
+      - { name: brevity, label: 显示为随笔（首页顶部横幅）, widget: boolean, required: false, default: false }
       - { name: body, label: 正文, widget: markdown }
 
   # ============ 友情链接（source/_data/links.yml）============
@@ -87,6 +89,18 @@ collections:
                   - { name: avatar, label: 图标地址, widget: string }
                   - { name: descr, label: 一句话介绍, widget: string }
                   - { name: topimg, label: 卡片大图地址, widget: string, required: false }
+
+  # ============ 公告（source/announce.json，全站底部公告条）============
+  - name: announce
+    label: 公告
+    files:
+      - name: announce-data
+        label: 全站公告
+        file: source/announce.json
+        fields:
+          - { name: enabled, label: 启用公告, widget: boolean, default: true }
+          - { name: text, label: 公告内容（支持 HTML）, widget: text }
+          - { name: link, label: 跳转链接（可选）, widget: string, required: false }
 
   # ============ 关于页（source/_data/about.yml）============
   - name: about

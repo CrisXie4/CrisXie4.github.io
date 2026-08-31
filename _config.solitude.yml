@@ -102,6 +102,7 @@ hometop:
     作品: /works/ || fas fa-cube || linear-gradient(to right,#C2543E,#E3A857)
     中转站: https://6geapi.com || fas fa-right-left || linear-gradient(to right,#B58A4C,#8A6E52)
     友情链接: /links/ || fas fa-user-group || linear-gradient(to right,#8C4A3E,#5C3A32)
+    广告合作: /ads/ || fas fa-rectangle-ad || linear-gradient(to right,#E3A857,#C2543E)
   recommendList:
     enable: false
 # --------------------------- end ---------------------------
@@ -747,6 +748,7 @@ extends:
     - <link rel="stylesheet" href="/css/custom.css">
     - <script defer src="https://umami.crisxie.top/script.js" data-website-id="a9a4a6a0-a722-42b8-9699-b9e78fa69a06"></script>
     # 自建 Umami 统计（HTTPS，GitHub Pages 与服务器站都正常记录）
+    - <script defer src="/js/announce.js"></script>
   # 18.7MB 的全量中文字体已移除（好卡元凶），改用系统字体栈
   #  - <link rel="stylesheet" href="/css/custom-fonts.css">
   #  - <script src="https://cdn.bootcdn.net/ajax/libs/pace/1.2.4/pace.min.js"></script>
