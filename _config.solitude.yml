@@ -116,13 +116,13 @@ aside:
   # Sticky: Fixed position / noSticky: Not fixed position
   # Sticky: 固定位置 / noSticky: 不固定位置
   home: # on the homepage
-    noSticky: "about,calendar,schedule,ads"
+    noSticky: "about,calendar,schedule,ads-slot"
     Sticky: "allInfo"
   post: # on the article page
-    noSticky: "about,ads"
+    noSticky: "about,ads-slot"
     Sticky: "newestPost"
   page: # on the page
-    noSticky: "about,ads"
+    noSticky: "about,ads-slot"
     Sticky: "newestPost,allInfo"
   # 菜单栏位置(0: 左 1: 右)
   position: 1 # Sidebar positioning(0: left 1: right)
@@ -546,6 +546,8 @@ footer:
 
   # 页脚信息文字
   links:
+    - name: 广告合作
+      url: tencent://message/?uin=2645939663&Site=&Menu=yes
     - name: RSS
       url: /atom.xml
     - name: License
