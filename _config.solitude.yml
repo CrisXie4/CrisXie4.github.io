@@ -44,6 +44,7 @@ nav:
       归档: /archives/ || /img/icons/archive.svg
       标签: /tags/ || /img/icons/tag.svg
       随笔: /essay/ || /img/icons/pen-nib.svg
+      关于: /about/ || /img/icons/user.svg
 
   # Menu
   menu:
@@ -89,12 +90,6 @@ hometop:
       JS:
         img: /img/icons/javascript-original.svg
         color: "#f7cb4f"
-      Docker:
-        img: /img/icons/docker-original.svg
-        color: "#57b6e6"
-      Flutter:
-        img: /img/icons/flutter-original.svg
-        color: "#ffffff"
       WebPack:
         img: /img/icons/webpack-original.svg
         color: "#2e3a41"
@@ -334,10 +329,10 @@ post:
 
 # --------------------------- start ---------------------------
 # Custom Theme Color
-# 强调色取自头像的视觉母题：白天 = 兔子的薰衣草紫，夜晚 = 糖果碗的琥珀色
+# 强调色取自头像的糖果碗：白天 = 糖果红，夜晚 = 糖果琥珀（禁蓝紫）
 theme_color:
   dark: "#E3A857" # dark
-  light: "#7C6BB8" # light
+  light: "#C2543E" # light
 # --------------------------- end ---------------------------
 
 # --------------------------- start ---------------------------
@@ -745,6 +740,7 @@ extends:
     - <link rel="stylesheet" href="/schedule/schedule.css">
     - <link rel="stylesheet" href="/css/custom-fonts.css">
     - <link rel="stylesheet" href="/css/custom.css">
+    - <script defer src="https://cloud.umami.is/script.js" data-website-id="366bba8d-6f92-4d05-a8a8-2c5068b27578"></script>
   #  - <script src="https://cdn.bootcdn.net/ajax/libs/pace/1.2.4/pace.min.js"></script>
 
   # Insert in body

@@ -32,13 +32,13 @@ skills:
   subtitle: 开启创造力
   tags:
     - title: 写作
-      color: "#8C74C9"
+      color: "#C2543E"
       icon: fas fa-pen-fancy
     - title: 阅读
       color: "#B58A4C"
       icon: fas fa-book
     - title: 摄影
-      color: "#5F8AB8"
+      color: "#8A6E52"
       icon: fas fa-camera
 
 # 座右铭
