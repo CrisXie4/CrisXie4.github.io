@@ -115,6 +115,7 @@ let titles={};
 const $=id=>document.getElementById(id);
 const ls={get:k=>localStorage.getItem(k),set:(k,v)=>localStorage.setItem(k,v),del:k=>localStorage.removeItem(k)};
 let token='';
+const site=()=>ls.get('umami_site')||SITE_DEFAULT;
 
 function cfg(){
   const mode=ls.get('umami_mode')||'self';
