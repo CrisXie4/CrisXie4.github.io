@@ -40,6 +40,10 @@ nav:
         <circle cx="17" cy="17" r="4"/>
       </svg>
   group: # 左侧盒子分组，格式 '名称: 链接 || 图片地址'（图标必须是图片，不能用字体图标）
+    快捷入口:
+      归档: /archives/ || /img/icons/archive.svg
+      标签: /tags/ || /img/icons/tag.svg
+      随笔: /essay/ || /img/icons/pen-nib.svg
 
   # Menu
   menu:
@@ -48,6 +52,7 @@ nav:
       全部文章: /archives/ || fas fa-folder-closed # item name: link
       全部分类: /categories/ || fas fa-clone
       全部标签: /tags/ || fas fa-tags
+    随笔: /essay/
     友情链接: /links/
     我的:
       关于我: /about/ || fas fa-user
@@ -145,8 +150,10 @@ aside:
       - 你一定可以的
       - 祝你好运，陌生人
     # social
-    # 社交信息图标（有了真实账号后再添加，格式: 名称: 链接 || 图标）
-    information: {}
+    # 社交信息图标
+    information:
+      Github: https://github.com/CrisXie4 || fab fa-github # Name: link || icon
+      Mail: mailto:crisweiming@hotmail.com || far fa-envelope
   # --------------------------- end ---------------------------
 
   # --------------------------- start ---------------------------
@@ -191,7 +198,7 @@ aside:
     runtimeenable: true
     # Format: yyyy-MM-dd hh-mm-ss
     # 格式: yyyy-MM-dd hh-mm-ss
-    runtime: "2025-09-01 00:00:00"
+    runtime: "2026-08-31 00:00:00"
   # --------------------------- end ---------------------------
 # --------------------------- end ---------------------------
 
@@ -247,7 +254,7 @@ post:
   # 文章本地AI
   ai:
     enable: true
-    modelName: 神人GPT
+    modelName: 六哥GPT
   # Article meta information
   # 文章元信息
   meta:
@@ -516,7 +523,9 @@ footer:
   # 社交图标
   information:
     author: /img/avatar-256.png # img url / false
-    left: [] # 有了真实账号后再添加，格式: 名称: 链接 || 图标
+    left:
+      Github: https://github.com/CrisXie4 || fab fa-github # 名称: 链接 || 图标
+      Mail: mailto:crisweiming@hotmail.com || far fa-envelope
     right: []
   # 友情链接
   group:

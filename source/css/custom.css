@@ -22,3 +22,57 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* ===== 移动端优化 ===== */
+/* 任何屏幕都不出现横向溢出 */
+html,
+body {
+  overflow-x: clip;
+}
+
+@media (max-width: 768px) {
+  /* 首页大标题：两行文案在小屏收紧字号 */
+  .banners-title-big {
+    font-size: 1.7rem !important;
+    line-height: 1.35 !important;
+  }
+
+  /* 图标跑马灯缩小，少占屏幕 */
+  .tags-group-icon {
+    width: 42px !important;
+    height: 42px !important;
+  }
+
+  .tags-group-icon img {
+    width: 24px !important;
+    height: 24px !important;
+  }
+
+  /* 顶部按钮的触控目标不小于 40px */
+  #nav-right .nav-button a {
+    min-width: 40px;
+    min-height: 40px;
+  }
+
+  /* 分类横条：顺滑滚动、隐藏滚动条 */
+  #category-bar-items {
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  #category-bar-items::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* 全面屏手势条安全区 */
+  #footer {
+    padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  }
+
+  /* 长词/长链接不撑破卡片 */
+  .post-content,
+  .card-content {
+    overflow-wrap: anywhere;
+  }
+}
+
