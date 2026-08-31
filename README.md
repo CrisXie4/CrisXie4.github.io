@@ -49,3 +49,13 @@ bash note.sh 随笔内容          # 一句话动态：自动加时间戳并推�
 bash note.sh --dry 随笔内容    # 预览模式，只看不发
 # 随笔数据在 source/_data/brevity.yml，想配图/音乐可手动编辑该文件
 ```
+
+## 网页后台
+
+`/admin/`（Sveltia CMS，GitHub 令牌登录）可管理：
+
+- **文章**：新建、编辑、删除，上传封面图
+- **友情链接**：`source/_data/links.yml` 的分组与站点
+- **关于页**：`source/_data/about.yml` 的介绍、技能、座右铭等
+
+随笔请用 `note.sh`（brevity.yml 是根级列表格式，CMS 不支持）。站点核心配置 `_config*.yml` 刻意不进后台——改错会直接导致构建失败。

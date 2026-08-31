@@ -13,12 +13,14 @@ media_folder: source/img/uploads
 public_folder: /img/uploads
 
 collections:
+  # ============ 文章 ============
   - name: posts
     label: 文章
     label_singular: 文章
     folder: source/_posts
     create: true
     slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
+    sortable_fields: [date, title]
     summary: "{{title}} - {{day}}/{{month}}/{{year}}"
     fields:
       - { name: title, label: 标题, widget: string }
@@ -27,3 +29,95 @@ collections:
       - { name: categories, label: 分类, widget: list, required: false, default: [], add_label: 添加分类 }
       - { name: cover, label: 封面图（可选）, widget: image, required: false }
       - { name: body, label: 正文, widget: markdown }
+
+  # ============ 友情链接（source/_data/links.yml）============
+  - name: links
+    label: 友情链接
+    files:
+      - name: links-data
+        label: 友情链接
+        file: source/_data/links.yml
+        fields:
+          - { name: banner_suffix, label: banner_suffix, widget: hidden, default: "" }
+          - name: links
+            label: 链接分组
+            widget: list
+            add_label: 添加分组
+            fields:
+              - { name: class_name, label: 分组名称, widget: string }
+              - { name: descr, label: 分组描述, widget: string, required: false }
+              - { name: type, label: 展示样式, widget: select, options: [card, item], default: card }
+              - { name: suffix, label: suffix, widget: string, required: false }
+              - name: link_list
+                label: 站点列表
+                widget: list
+                add_label: 添加站点
+                fields:
+                  - { name: name, label: 站点名称, widget: string }
+                  - { name: link, label: 网址, widget: string }
+                  - { name: avatar, label: 头像图片地址, widget: string }
+                  - { name: descr, label: 一句话介绍, widget: string }
+                  - { name: topimg, label: 卡片大图地址, widget: string, required: false }
+
+  # ============ 关于页（source/_data/about.yml）============
+  - name: about
+    label: 关于页
+    files:
+      - name: about-data
+        label: 关于页
+        file: source/_data/about.yml
+        fields:
+          - name: authorinfo
+            label: 悬浮标签墙
+            widget: object
+            fields:
+              - { name: leftTags, label: 标签（左列）, widget: list, required: false, add_label: 添加 }
+              - { name: rightTags, label: 标签（右列）, widget: list, required: false, add_label: 添加 }
+              - { name: image, label: 图片, widget: image, required: false }
+          - { name: title, label: 页面标题, widget: string }
+          - name: contentinfo
+            label: 介绍块
+            widget: object
+            fields:
+              - { name: sup, label: 顶部小字, widget: string }
+              - { name: name, label: 名字, widget: string }
+              - { name: title, label: 一句话介绍, widget: string }
+              - { name: tip, label: 角标文字, widget: string, required: false }
+              - { name: slogan, label: 口号（支持<br>换行）, widget: string, required: false }
+              - { name: mask, label: 打字机轮播词, widget: list, required: false, add_label: 添加 }
+          - name: skills
+            label: 技能展示
+            widget: object
+            fields:
+              - { name: title, label: 标题, widget: string }
+              - { name: subtitle, label: 副标题, widget: string }
+              - name: tags
+                label: 技能
+                widget: list
+                add_label: 添加技能
+                fields:
+                  - { name: title, label: 技能名, widget: string }
+                  - { name: color, label: 颜色（如 "#C2543E"）, widget: string }
+                  - { name: icon, label: 图标（fontawesome 类名）, widget: string }
+          - name: motto
+            label: 座右铭
+            widget: object
+            fields:
+              - { name: title, label: 标题, widget: string }
+              - { name: prefix, label: 前半句, widget: string }
+              - { name: content, label: 后半句, widget: string }
+          - name: cause
+            label: 为什么建站
+            widget: object
+            fields:
+              - { name: tip, label: 角标文字, widget: string }
+              - { name: title, label: 标题, widget: string }
+              - { name: content, label: 内容（支持 HTML 标签）, widget: text }
+          - name: tenyear
+            label: 十年之约
+            widget: object
+            fields:
+              - { name: tips, label: 角标文字, widget: string }
+              - { name: title, label: 标题, widget: string }
+              - { name: start, label: 开始日期（YYYY-MM-DD）, widget: string }
+              - { name: end, label: 结束日期（YYYY-MM-DD）, widget: string }
