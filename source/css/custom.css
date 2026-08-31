@@ -1,0 +1,24 @@
+/* 六哥的博客 · 自定义样式（强调色与头像同源：薰衣草紫 / 糖果琥珀） */
+
+::selection {
+  background: rgba(124, 107, 184, 0.32);
+}
+
+/* 键盘导航可见焦点 */
+:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* 尊重系统的"减少动态效果"偏好 */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

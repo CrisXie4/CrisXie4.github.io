@@ -21,7 +21,7 @@ site:
   name:
     class: text # text / i_class / img
     custom: 六哥 # Solitude / fas fa-ghost / /img/pwa/favicon.ico
-  icon: /img/avatar.png # Site icon / 网站图标
+  icon: /img/avatar-256.png # Site icon / 网站图标
 # --------------------------- end ---------------------------
 
 # --------------------------- start ---------------------------
@@ -71,7 +71,7 @@ nav:
 hometop:
   enable: true
   banner:
-    title: 热爱生活,<br >无限进步! # 大字
+    title: 记录与表达,<br >热爱可抵岁月漫长 # 大字
     desc:
       六哥 # 小字
       # - 我只是一个普通的程序员
@@ -128,8 +128,8 @@ aside:
   # 信息卡
   my_card:
     author:
-      img: /img/avatar.png # url
-      sticker: https://twikoo-magic.oss-cn-hangzhou.aliyuncs.com/weibo/d_aoteman.png # url, 24x24 size
+      img: /img/avatar-256.png # url
+      sticker: /emoji/LG/微笑.png # url, 24x24 size
     # 介绍 / Introduction
     description: 记录与表达。
     # 内容 / Content
@@ -145,9 +145,8 @@ aside:
       - 你一定可以的
       - 祝你好运，陌生人
     # social
-    # 社交信息图标
-    information:
-      Github: https://github.com/your-github-id || fab fa-github # Name: link || icon
+    # 社交信息图标（有了真实账号后再添加，格式: 名称: 链接 || 图标）
+    information: {}
   # --------------------------- end ---------------------------
 
   # --------------------------- start ---------------------------
@@ -237,7 +236,7 @@ post:
     # 版权
     copyright:
       enable: true
-      author: /img/avatar.png # url
+      author: /img/avatar-256.png # url
       # License
       # 许可证
       license: CC BY-NC-SA 4.0
@@ -328,9 +327,10 @@ post:
 
 # --------------------------- start ---------------------------
 # Custom Theme Color
+# 强调色取自头像的视觉母题：白天 = 兔子的薰衣草紫，夜晚 = 糖果碗的琥珀色
 theme_color:
-  dark: "#D4722D" # dark
-  light: "#272727" # light
+  dark: "#E3A857" # dark
+  light: "#7C6BB8" # light
 # --------------------------- end ---------------------------
 
 # --------------------------- start ---------------------------
@@ -515,12 +515,9 @@ rightside:
 footer:
   # 社交图标
   information:
-    author: /img/avatar.png # img url / false
-    left:
-      Github: https://github.com/your-github-id || fab fa-github # 名称: 链接 || 图标
-      Mail: mailto:your@email.com || far fa-envelope
-    right:
-      Bilibili: https://space.bilibili.com/your-bilibili-id || fab fa-bilibili
+    author: /img/avatar-256.png # img url / false
+    left: [] # 有了真实账号后再添加，格式: 名称: 链接 || 图标
+    right: []
   # 友情链接
   group:
     导航:
@@ -552,7 +549,7 @@ footer:
         - fab fa-creative-commons-nd
     - name: 六哥
       url: /
-      img: /img/avatar.png
+      img: /img/avatar-256.png
 # --------------------------- end ---------------------------
 
 # --------------------------- start ---------------------------
@@ -625,10 +622,10 @@ lazyload:
 loading:
   # Full screen loading
   # 全屏加载
-  fullpage: true
+  fullpage: false
   # Loading icon, default is siteicon
   # 加载图标，不写默认siteicon
-  favicon: /img/avatar.png
+  favicon: /img/avatar-256.png
   # Pace loading
   # Pace 加载
   pace: true
@@ -738,6 +735,7 @@ extends:
   head:
     - <link rel="stylesheet" href="/schedule/schedule.css">
     - <link rel="stylesheet" href="/css/custom-fonts.css">
+    - <link rel="stylesheet" href="/css/custom.css">
   #  - <script src="https://cdn.bootcdn.net/ajax/libs/pace/1.2.4/pace.min.js"></script>
 
   # Insert in body

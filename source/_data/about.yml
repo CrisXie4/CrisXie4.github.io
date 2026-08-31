@@ -8,7 +8,7 @@ authorinfo:
     - 保持好奇 🔍
     - 坚持输出 🏃
     - 热爱可抵岁月漫长 💢
-  image: /img/avatar.png
+  image: /img/avatar-256.png
 
 # 标题
 title: 关于六哥
@@ -32,37 +32,14 @@ skills:
   subtitle: 开启创造力
   tags:
     - title: 写作
-      color: "#f54290"
+      color: "#8C74C9"
       icon: fas fa-pen-fancy
     - title: 阅读
-      color: "#42b883"
+      color: "#B58A4C"
       icon: fas fa-book
     - title: 摄影
-      color: "#007dfa"
+      color: "#5F8AB8"
       icon: fas fa-camera
-
-# 生涯模块
-careers:
-  title: 生涯
-  subtitle: 无限进步
-  items:
-    - school: EDU
-      major: 在此填写你的经历
-      color: "#007dfa"
-  image: /img/default_avatar.avif
-
-# 性格模块
-personalities:
-  tips: 性格
-  title: 在此填写
-  color: "#800080"
-  type: INTJ
-  image: /img/avatar.png
-  link: https://www.16personalities.com/
-  linkText: 16personalities
-  typeLink: https://www.16personalities.com/
-  typeName: 在此填写
-  myphoto: /img/avatar.png
 
 # 座右铭
 motto:
@@ -70,31 +47,12 @@ motto:
   prefix: 但行好事，
   content: 莫问前程。
 
-# 特长模块
-expertise:
-  title: 特长
-  prefix: 在此填写
-  specialist: 在此填写
-  content: 在此填写
-  level: MAX
-
 # 网站统计数据展示模块（接入自己的统计后再配置）
 # tj:
 #   provider: 51la
 #   url: https://v6-widget.51.la/v6/你的ID/quote.js?theme=0&col=true&f=12&badge=icon_0&icon=center
-#   img: /img/default_avatar.avif
+#   img: /img/avatar-256.png
 #   desc: 本站采用 51LA 网站统计
-
-# 个人信息模块
-oneself:
-  location: 中国
-  birthYear: 2000
-  university: EDU
-  major: 在此填写
-  occupation: 在此填写
-  map:
-    light: /img/default_avatar.avif
-    dark: /img/default_avatar.avif
 
 # 自定义
 cause:
@@ -106,13 +64,8 @@ cause:
     这里会有<b>学习笔记</b>、有<b>生活记录</b>、有<b>想法思考</b>，
     这就是建站的本意，也是我分享生活的方式。
 
-# 打赏列表（不需要可保持关闭）
-award:
-  enable: false
-  description: 感谢赞赏的人，因为你们，让我感受到在做的事情创造了价值。
-  tips: 总金额：¥ {sum}，将全部用于内容的创作。
-
-rewardList: []
+# 生涯 / 性格 / 特长 / 个人信息模块：需要时参考主题文档补回
+# careers / personalities / expertise / oneself / award
 
 # 十年之约
 tenyear:
