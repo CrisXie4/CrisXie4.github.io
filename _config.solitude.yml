@@ -758,6 +758,7 @@ extends:
   body:
     - <script src="/schedule/schedule.js"></script>
     - <script src="https://open.lightxi.com/unpkg/chinese-lunar@0.1.4/lib/chinese-lunar.js"></script>
+    - <script src="/js/viewcount.js"></script>
     # TODO: 接入自己的访问统计（如 51LA）时再添加脚本
   #  - <script src="https://cdn.bootcdn.net/ajax/libs/pace/1.2.4/pace.min.js"></script>
 # --------------------------- end ---------------------------
@@ -1002,7 +1003,7 @@ CDN:
     # artalk_js:
     # blueimp_md5:
     # busuanzi_js:
-    busuanzi_js: /js/bsz.js # 自托管不蒜子脚本，避免外部 CDN 被浏览器拦截
+    busuanzi_js: /js/bsz-dummy.js # 原生不蒜子已停用（刷新会重复计数），阅读量由 viewcount.js 唯一计数提供
     # chart_js:
     # color_thief:
     # fancyapps_css:
