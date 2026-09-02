@@ -32,6 +32,11 @@
         <span class="t">写文章</span>
         <span class="d">新建草稿并发布</span>
       </a>
+      <a class="tile" href="#edit=essay">
+        <span class="badge"><svg class="ic"><use href="#i-feather"/></svg></span>
+        <span class="t">发随笔</span>
+        <span class="d">一句话动态，即刻上线</span>
+      </a>
       <a class="tile" href="#edit=announce">
         <span class="badge"><svg class="ic"><use href="#i-announce"/></svg></span>
         <span class="t">全站公告</span>
@@ -117,10 +122,11 @@
 'use strict';
 
 const DATA_FILES = {
-  announce: { path: 'source/announce.json',   label: '全站公告', type: 'json' },
-  links:    { path: 'source/_data/links.yml', label: '友情链接', type: 'form', form: 'linksite', noun: '友链站点' },
-  works:    { path: 'source/_data/works.yml', label: '作品页',   type: 'form', form: 'linksite', noun: '作品' },
-  about:    { path: 'source/_data/about.yml', label: '关于页',   type: 'form', form: 'about' },
+  announce: { path: 'source/announce.json',       label: '全站公告', type: 'json' },
+  essay:    { path: 'source/_data/brevity.yml',   label: '发随笔',   type: 'form', form: 'essay' },
+  links:    { path: 'source/_data/links.yml',     label: '友情链接', type: 'form', form: 'linksite', noun: '友链站点' },
+  works:    { path: 'source/_data/works.yml',     label: '作品页',   type: 'form', form: 'linksite', noun: '作品' },
+  about:    { path: 'source/_data/about.yml',     label: '关于页',   type: 'form', form: 'about' },
 };
 let edSha = null, edKey = null, edMode = 'form';
 
@@ -188,7 +194,35 @@ async function openEditor(key) {
 function renderForm(conf, obj) {
   const root = $('#edFormWrap');
   if (conf.form === 'about') renderAboutForm(root, obj);
+  else if (conf.form === 'essay') renderEssayForm(root, obj);
   else renderLinksiteForm(root, obj, conf.noun);
+}
+
+/* 随笔：大输入框 + 最近条目预览；collect 返回「新条目插到最前」的完整列表 */
+function renderEssayForm(root, list) {
+  list = Array.isArray(list) ? list : [];
+  root.innerHTML = `
+    <div class="card">
+      <label class="fl" style="margin-top:0">随笔内容（支持 emoji 和 HTML，换行会合并为空格）</label>
+      <textarea id="esText" rows="4" style="width:100%" placeholder="写点什么…"></textarea>
+      <div class="tip"><span id="esCount">0</span> 字 · 发布时自动加时间戳，新随笔排在最前，约 1–2 分钟后出现在「随笔」页</div>
+      <div class="sec-label" style="margin-top:14px">最近随笔（只读，改旧内容请切到「YAML 源码」）</div>
+      <div id="esRecent"></div>
+    </div>`;
+  const ta = root.querySelector('#esText');
+  const recent = root.querySelector('#esRecent');
+  (list || []).slice(0, 5).forEach(it => {
+    recent.appendChild(el('<div class="ref"><span>' + esc(String(it.content || '')) + '</span><b class="num">' + esc(String(it.date || '')) + '</b></div>'));
+  });
+  if (!(list || []).length) recent.appendChild(el('<div class="tip">还没有随笔，发第一条吧</div>'));
+  ta.addEventListener('input', () => { root.querySelector('#esCount').textContent = ta.value.length; });
+  root.collect = () => {
+    const v = ta.value.replace(/\s+/g, ' ').trim();
+    if (!v) return list;
+    const d = new Date(), p2 = n => String(n).padStart(2, '0');
+    const stamp = d.getFullYear() + '-' + p2(d.getMonth() + 1) + '-' + p2(d.getDate()) + ' ' + p2(d.getHours()) + ':' + p2(d.getMinutes());
+    return [{ content: v, date: stamp }].concat(list);
+  };
 }
 
 function formToYaml(conf) {
@@ -222,7 +256,7 @@ $('#tabSrc').onclick = () => setTab('src');
 $('#edSave').onclick = async () => {
   if (!edKey) return;
   const conf = DATA_FILES[edKey];
-  let text;
+  let text, commitMsg = '后台修改: ' + conf.label + '（' + conf.path + '）';
   if (conf.type === 'json') {
     text = JSON.stringify({ enabled: $('#anEnabled').checked, text: $('#anText').value.trim(), link: $('#anLink').value.trim() }, null, 2) + '\n';
     try { JSON.parse(text); } catch (e) { return edStatus('内容不是合法 JSON：' + e.message, true); }
@@ -230,6 +264,10 @@ $('#edSave').onclick = async () => {
     const r = formToYaml(conf);
     if (!yamlRoundTripOk(r.obj)) return edStatus('自校验未通过（生成的 YAML 无法还原为表单内容），未提交。请检查各输入框内容', true);
     text = r.text;
+    if (conf.form === 'essay') {
+      const v = $('#esText') ? $('#esText').value.replace(/\s+/g, ' ').trim() : '';
+      if (v) commitMsg = '后台发随笔: ' + v.slice(0, 30);
+    }
   } else {
     text = $('#edText').value;
     if (!text.trim()) return edStatus('内容为空，已取消', true);
@@ -237,9 +275,10 @@ $('#edSave').onclick = async () => {
   $('#edSave').disabled = true;
   edStatus('提交中…');
   try {
-    const j = await putRepoFile(conf.path, text, '后台修改: ' + conf.label + '（' + conf.path + '）', edSha);
+    const j = await putRepoFile(conf.path, text, commitMsg, edSha);
     edSha = j.content.sha;
     edStatus('已保存，正在自动构建，约 1–2 分钟后上线', false);
+    if (conf.form === 'essay' && $('#esText')) $('#esText').value = '';
   } catch (e) {
     edStatus('保存失败：' + e.message + (e.code === 'HTTP' ? '（可能文件刚被别处修改过，点「返回后台」重新进入再试）' : ''), true);
   }

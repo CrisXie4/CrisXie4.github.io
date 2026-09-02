@@ -179,7 +179,9 @@ function dumpItem(item, indent) {
   return out;
 }
 
-function yamlDump(obj) { return dumpMap(obj, 0); }
+function yamlDump(obj) {
+  return Array.isArray(obj) ? obj.map(it => dumpItem(it, 0)).join('') : dumpMap(obj, 0);
+}
 
 /* 关于页：按主题文件原有的注释骨架生成（表单之外的内容原样保留） */
 function buildAboutYaml(d) {
