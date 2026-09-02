@@ -30,7 +30,7 @@
 .ref{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid var(--line);font-size:13px}
 .ref:last-child{border-bottom:none}
 svg text{font-size:10px;fill:var(--faint)}
-#cfg input{width:100%}
+#errbox{background:#FDF1EE;border:1px solid #E8C4B8;border-radius:var(--r-md);padding:14px 16px;font-size:13px;color:var(--red);margin-bottom:18px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
 .footer-links{display:flex;gap:16px;flex-wrap:wrap;margin-top:26px;font-size:13px}
 </style>
 </head>
@@ -40,34 +40,20 @@ svg text{font-size:10px;fill:var(--faint)}
     <div>
       <h1>数据看板</h1>
       <div class="brandline"></div>
-      <div class="sub">访客数据来自自建 Umami（umami.crisxie.top），按页面去重统计，不含自己人在预览时的刷新（Umami 同一会话 30 分钟内不重复计数）</div>
+      <div class="sub">访客数据来自自建 Umami（只读分享通道），打开即自动加载，无需登录；Umami 同一会话 30 分钟内不重复计数</div>
     </div>
     <div class="actions">
       <a class="btn ghost" href="/admin/"><svg class="ic"><use href="#i-back"/></svg>返回后台</a>
     </div>
   </div>
 
-  <!-- 连接配置 -->
-  <div id="cfg" class="hide">
-    <div class="card" style="max-width:520px;margin:40px auto">
-      <h2><svg class="ic"><use href="#i-gear"/></svg>连接统计服务</h2>
-      <label class="fl" style="margin-top:0">Umami 接口地址</label>
-      <input id="inBase" placeholder="https://umami.crisxie.top/api">
-      <label class="fl">用户名</label>
-      <input id="inUser" placeholder="admin">
-      <label class="fl">密码</label>
-      <input id="inPass" type="password" placeholder="Umami 后台密码">
-      <label class="fl">网站 ID</label>
-      <input id="inSite" class="mono" placeholder="a9a4a6a0-…">
-      <div style="margin-top:14px"><button class="btn" id="cfgSave">保存并连接</button></div>
-      <div id="err" class="status err" style="margin-top:10px"></div>
-      <div class="tip">账号密码只保存在这台设备的浏览器里，用于直接向 Umami 查询，不会上传到博客仓库。<br>忘记密码可在服务器 Umami 后台重置，或用公开只读报表：<a href="https://cloud.umami.is/share/YTYSw8vSt75GmGei" target="_blank">cloud.umami.is/share/YTYSw8vSt75GmGei</a></div>
-    </div>
+  <div id="errbox" class="hide">
+    <span id="errmsg"></span>
+    <button class="btn small" id="retry">重试</button>
   </div>
 
-  <!-- 数据区 -->
-  <div id="dash" class="hide">
-    <div class="toolbar" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:18px">
+  <div id="dash">
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:18px">
       <div class="range" id="rangeBox">
         <button data-v="day">今天</button>
         <button data-v="7d" class="on">近 7 天</button>
@@ -75,7 +61,6 @@ svg text{font-size:10px;fill:var(--faint)}
         <button data-v="90d">近 90 天</button>
       </div>
       <button class="btn gray" id="refresh"><svg class="ic"><use href="#i-eye"/></svg>刷新</button>
-      <button class="btn gray" id="reconfig"><svg class="ic"><use href="#i-gear"/></svg>修改连接</button>
     </div>
 
     <div class="sect">
@@ -91,7 +76,7 @@ svg text{font-size:10px;fill:var(--faint)}
     <div class="sect">
       <h2><svg class="ic"><use href="#i-clock"/></svg>访问趋势</h2>
       <div class="card">
-        <div id="chart"><div class="tip">暂无趋势数据</div></div>
+        <div id="chart"><div class="tip">加载中…</div></div>
         <div class="legend"><span><i></i>浏览量</span><span><i class="v2"></i>访客数</span></div>
       </div>
     </div>
@@ -113,11 +98,11 @@ svg text{font-size:10px;fill:var(--faint)}
     <div class="sect">
       <h2><svg class="ic"><use href="#i-cursor"/></svg>访问来源</h2>
       <div class="desc">访客从哪里点进来的，前 10 名；「直接访问」指地址栏输入或收藏夹打开</div>
-      <div class="card"><div id="refs"><div class="tip">暂无来源数据</div></div></div>
+      <div class="card"><div id="refs"><div class="tip">加载中…</div></div></div>
     </div>
 
     <div class="footer-links">
-      <a href="https://cloud.umami.is/share/YTYSw8vSt75GmGei" target="_blank">打开完整只读报表</a>
+      <a href="https://umami.crisxie.top/share/liugeblog" target="_blank">打开分享版看板</a>
       <a href="https://umami.crisxie.top" target="_blank">打开 Umami 管理后台</a>
     </div>
   </div>
@@ -127,15 +112,11 @@ svg text{font-size:10px;fill:var(--faint)}
 <script>
 'use strict';
 const $ = s => document.querySelector(s);
-const SITE_DEFAULT = 'a9a4a6a0-a722-42b8-9699-b9e78fa69a06';
+const SITE = 'a9a4a6a0-a722-42b8-9699-b9e78fa69a06';
+const SHARE_ID = 'liugeblog';
+const BASE = 'https://umami.crisxie.top/api';
 const TZ = (Intl.DateTimeFormat().resolvedOptions().timeZone || 'Asia/Shanghai');
-let titles = {};
-let token = '';
-let range = '7d';
-
-const ls = { get: k => localStorage.getItem(k), set: (k, v) => localStorage.setItem(k, v), del: k => localStorage.removeItem(k) };
-const base = () => (ls.get('umami_base') || 'https://umami.crisxie.top/api').replace(/\/$/, '');
-const site = () => ls.get('umami_site') || SITE_DEFAULT;
+let titles = {}, token = '', range = '7d';
 
 function fmtTime(s) {
   s = Math.round(s || 0);
@@ -143,31 +124,24 @@ function fmtTime(s) {
   return m ? m + ' 分 ' + (s % 60) + ' 秒' : s + ' 秒';
 }
 
-async function login() {
-  const r = await fetch(base() + '/auth/login', {
-    method: 'POST', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ username: ls.get('umami_user') || '', password: ls.get('umami_pass') || '' })
-  });
-  if (!r.ok) throw new Error(r.status === 401 ? '用户名或密码不正确' : 'Umami 返回 ' + r.status);
+function showErr(msg) {
+  $('#errbox').classList.remove('hide');
+  $('#errmsg').textContent = msg;
+}
+
+async function getShareToken() {
+  const r = await fetch(BASE + '/share/' + SHARE_ID);
+  if (!r.ok) throw new Error('Umami 服务返回 ' + r.status + '，可能暂时不在线');
   token = (await r.json()).token;
 }
 
-async function api(path, params) {
-  const u = new URL(base() + path);
+async function api(path, params, retried) {
+  const u = new URL(BASE + path);
   Object.entries(params || {}).forEach(([k, v]) => u.searchParams.set(k, v));
-  const r = await fetch(u, { headers: { Authorization: 'Bearer ' + token } });
-  if (r.status === 401) { token = ''; await login(); return api(path, params); }
+  const r = await fetch(u, { headers: { 'x-umami-share-token': token } });
+  if (r.status === 401 && !retried) { await getShareToken(); return api(path, params, true); }
   if (!r.ok) throw new Error('Umami 返回 ' + r.status);
   return r.json();
-}
-
-function showCfg(msg) {
-  $('#dash').classList.add('hide');
-  $('#cfg').classList.remove('hide');
-  $('#inBase').value = base();
-  $('#inUser').value = ls.get('umami_user') || 'admin';
-  $('#inSite').value = ls.get('umami_site') || SITE_DEFAULT;
-  $('#err').textContent = msg || '';
 }
 
 function renderRange() {
@@ -234,10 +208,10 @@ async function loadAll() {
     await loadTitles();
     const startAt = rangeStart(), endAt = Date.now(), unit = range === 'day' ? 'hour' : 'day';
     const [stats, pv, urls, refs] = await Promise.all([
-      api(`/websites/${site()}/stats`, { startAt, endAt }),
-      api(`/websites/${site()}/pageviews`, { startAt, endAt, unit, timezone: TZ }),
-      api(`/websites/${site()}/metrics`, { startAt, endAt, type: 'url' }),
-      api(`/websites/${site()}/metrics`, { startAt, endAt, type: 'referrer' }).catch(() => [])
+      api(`/websites/${SITE}/stats`, { startAt, endAt }),
+      api(`/websites/${SITE}/pageviews`, { startAt, endAt, unit, timezone: TZ }),
+      api(`/websites/${SITE}/metrics`, { startAt, endAt, type: 'url' }),
+      api(`/websites/${SITE}/metrics`, { startAt, endAt, type: 'referrer' }).catch(() => [])
     ]);
     const v = o => (o && typeof o === 'object' && 'value' in o) ? o.value : (o || 0);
     const st = stats && stats.pageviews ? stats : { pageviews: stats };
@@ -252,38 +226,19 @@ async function loadAll() {
     $('#refs').innerHTML = rl.length
       ? rl.slice(0, 10).map(i => `<div class="ref"><span>${(i.x || '').replace(/^https?:\/\//, '').slice(0, 60) || '直接访问'}</span><b class="num">${i.y}</b></div>`).join('')
       : '<div class="tip">这个时间段还没有来源数据</div>';
+    $('#errbox').classList.add('hide');
   } catch (e) {
-    showCfg('加载数据失败：' + e.message + '。可检查连接信息，或直接使用下方公开只读报表。');
+    showErr('加载数据失败：' + e.message);
   }
 }
 
-$('#cfgSave').onclick = async () => {
-  ls.set('umami_base', $('#inBase').value.trim() || 'https://umami.crisxie.top/api');
-  ls.set('umami_user', $('#inUser').value.trim());
-  ls.set('umami_pass', $('#inPass').value);
-  ls.set('umami_site', $('#inSite').value.trim() || SITE_DEFAULT);
-  $('#err').textContent = '连接中…';
-  try {
-    await login();
-    $('#cfg').classList.add('hide');
-    $('#dash').classList.remove('hide');
-    loadAll();
-  } catch (e) {
-    $('#err').textContent = '连接失败：' + e.message + '。请确认账号密码，或 Umami 服务是否在线。';
-  }
-};
+$('#retry').onclick = () => { getShareToken().then(loadAll).catch(e => showErr('重试失败：' + e.message)); };
 $('#refresh').onclick = loadAll;
-$('#reconfig').onclick = () => showCfg();
 document.querySelectorAll('#rangeBox button').forEach(b => b.onclick = () => { range = b.dataset.v; renderRange(); loadAll(); });
 $('#filter').addEventListener('input', renderPages);
 
 renderRange();
-if (ls.get('umami_pass')) {
-  $('#dash').classList.remove('hide');
-  login().then(loadAll).catch(e => showCfg('自动连接失败：' + e.message + '。请重新填写密码。'));
-} else {
-  showCfg();
-}
+getShareToken().then(loadAll).catch(e => showErr('连接 Umami 失败：' + e.message));
 </script>
 </body>
 </html>
