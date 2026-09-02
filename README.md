@@ -71,4 +71,4 @@ git add source/admin/secret.js && git commit -m "重置后台密码" && git push
 
 ⚠️ `secret.js` 在公开仓库里，密码就是唯一的门锁：**请用 12 位以上混合字符**，别用弱密码。也可以在登录页改用 GitHub 令牌直接登录。
 
-随笔请用 `note.sh`（brevity.yml 是根级列表格式，后台不管理）。站点核心配置 `_config*.yml` 刻意不进后台——改错会直接导致构建失败。
+随笔也可用后台「发随笔」（brevity.yml，新条目自动加时间戳插到最前）；`note.sh` 是命令行等价方案。站点核心配置 `_config*.yml` 刻意不进后台——改错会直接导致构建失败。
