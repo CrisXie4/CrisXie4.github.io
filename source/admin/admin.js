@@ -164,45 +164,99 @@ function postUrl(path) {
   return `/${m[1]}/${m[2]}/${m[3]}/${encodeURIComponent(m[4])}/`;
 }
 
-/* ---------- 登录（GitHub 个人访问令牌） ---------- */
-/* 页面需包含：<div id="login"></div><div id="app" class="hide">…</div> */
+/* ---------- 登录 ---------- */
+/* 优先：后台密码（解密内置密钥 source/admin/secret.js，见 tools/make-admin-vault.js）
+   备用：直接粘贴 GitHub 个人访问令牌
+   页面需包含：<div id="login"></div><div id="app" class="hide">…</div> */
+
+async function vaultDecrypt(pass) {
+  const v = window.VAULT;
+  const b = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+  const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(pass), 'PBKDF2', false, ['deriveKey']);
+  const aes = await crypto.subtle.deriveKey(
+    { name: 'PBKDF2', salt: b(v.salt), iterations: v.iters, hash: 'SHA-256' },
+    key, { name: 'AES-GCM', length: 256 }, false, ['decrypt']);
+  const plain = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: b(v.iv), tagLength: 128 }, aes, b(v.ct));
+  return new TextDecoder().decode(plain);
+}
+
 function initAuth(onReady) {
   const box = $('#login'), app = $('#app');
+  const hasVault = typeof window !== 'undefined' && window.VAULT && window.VAULT.ct;
   box.innerHTML = `
     <div class="card">
       <h2>🔐 登录博客后台</h2>
-      <p class="tip" style="margin:8px 0">粘贴 GitHub 个人访问令牌（PAT），仅保存在本机浏览器，直接与 GitHub API 通信。</p>
-      <input id="patInput" type="password" placeholder="github_pat_… / ghp_…" autocomplete="off">
-      <div><button class="btn" id="loginBtn">登录</button></div>
-      <div id="loginErr"></div>
-      <div class="tip" style="text-align:left">
-        <b>没有令牌？</b>打开
-        <a href="https://github.com/settings/personal-access-tokens/new" target="_blank">GitHub 令牌创建页</a>：
-        Repository access 选 <b>Only select repositories → CrisXie4/CrisXie4.github.io</b>，
-        Permissions 里 Repository permissions → Contents 选 <b>Read and write</b>，生成后复制过来。<br>
-        经典令牌（ghp_ 开头）也可以，勾选 repo 权限即可。
+      <div id="pwWrap"${hasVault ? '' : ' class="hide"'}>
+        <p class="tip" style="margin:8px 0">输入后台密码（密码校验通过后自动使用内置密钥连接 GitHub，只保存在本机浏览器）。</p>
+        <input id="passInput" type="password" placeholder="后台密码" autocomplete="current-password">
+        <div><button class="btn" id="loginBtn">登录</button></div>
+        <div id="loginErr"></div>
+        <div class="tip" style="text-align:left">忘记密码？在电脑上重新运行 <span class="mono">tools/make-admin-vault.js</span> 即可重置。</div>
+        <div class="tip"><a href="#" id="toPat">改用 GitHub 令牌登录 →</a></div>
+      </div>
+      <div id="patWrap"${hasVault ? ' class="hide"' : ''}>
+        <p class="tip" style="margin:8px 0">粘贴 GitHub 个人访问令牌（PAT），仅保存在本机浏览器，直接与 GitHub API 通信。</p>
+        <input id="patInput" type="password" placeholder="github_pat_… / ghp_…" autocomplete="off">
+        <div><button class="btn" id="loginBtnPat">登录</button></div>
+        <div id="loginErrPat"></div>
+        <div class="tip" style="text-align:left">
+          <b>没有令牌？</b>打开
+          <a href="https://github.com/settings/personal-access-tokens/new" target="_blank">GitHub 令牌创建页</a>：
+          Repository access 选 <b>Only select repositories → CrisXie4/CrisXie4.github.io</b>，
+          Permissions 里 Repository permissions → Contents 选 <b>Read and write</b>，生成后复制过来。<br>
+          经典令牌（ghp_ 开头）也可以，勾选 repo 权限即可。
+        </div>
+        ${hasVault ? '<div class="tip"><a href="#" id="toPw">← 用后台密码登录</a></div>' : ''}
       </div>
     </div>`;
-  const err = m => { $('#loginErr').textContent = m || ''; };
-  const enter = async () => {
-    const v = $('#patInput').value.trim();
-    if (!v) return err('请先粘贴令牌');
-    Pat.set(v);
+  const showPw = () => { $('#pwWrap').classList.remove('hide'); $('#patWrap').classList.add('hide'); };
+  const showPat = () => { $('#patWrap').classList.remove('hide'); $('#pwWrap').classList.add('hide'); };
+  if (hasVault) { $('#toPat').onclick = e => { e.preventDefault(); showPat(); }; $('#toPw').onclick = e => { e.preventDefault(); showPw(); }; }
+  else showPat();
+
+  const afterToken = async () => {
+    await ghApi('/user');
+    await ghApi(`/repos/${GH.owner}/${GH.repo}`);
+    box.classList.add('hide'); app.classList.remove('hide');
+    onReady();
+  };
+
+  /* 密码登录 */
+  const enterPass = async () => {
+    const pass = $('#passInput').value;
+    if (!pass) return errPw('请输入密码');
     $('#loginBtn').disabled = true;
-    err('验证中…');
-    try {
-      await ghApi('/user');
-      await ghApi(`/repos/${GH.owner}/${GH.repo}`);
-      err('');
-      box.classList.add('hide'); app.classList.remove('hide');
-      onReady();
-    } catch (e) {
-      err(e.code === 'AUTH' || e.code === 'FORBIDDEN' ? '登录失败：令牌无效，或没有勾选本仓库 Contents 读写权限' : e.message);
+    errPw('验证中…');
+    let token;
+    try { token = await vaultDecrypt(pass); }
+    catch (e) { $('#loginBtn').disabled = false; return errPw('密码错误'); }
+    Pat.set(token);
+    try { await afterToken(); errPw(''); }
+    catch (e) {
       $('#loginBtn').disabled = false;
+      errPw('登录失败：' + e.message);
     }
   };
-  $('#loginBtn').onclick = enter;
-  $('#patInput').addEventListener('keydown', e => { if (e.key === 'Enter') enter(); });
+  const errPw = m => { $('#loginErr').textContent = m || ''; };
+
+  /* 令牌登录 */
+  const errPat = m => { $('#loginErrPat').textContent = m || ''; };
+  const enterPat = async () => {
+    const v = $('#patInput').value.trim();
+    if (!v) return errPat('请先粘贴令牌');
+    Pat.set(v);
+    $('#loginBtnPat').disabled = true;
+    errPat('验证中…');
+    try { await afterToken(); errPat(''); }
+    catch (e) {
+      errPat(e.code === 'AUTH' || e.code === 'FORBIDDEN' ? '登录失败：令牌无效，或没有勾选本仓库 Contents 读写权限' : e.message);
+      $('#loginBtnPat').disabled = false;
+    }
+  };
+  $('#loginBtn').onclick = enterPass;
+  $('#passInput') && $('#passInput').addEventListener('keydown', e => { if (e.key === 'Enter') enterPass(); });
+  $('#loginBtnPat').onclick = enterPat;
+  $('#patInput').addEventListener('keydown', e => { if (e.key === 'Enter') enterPat(); });
 
   if (!Pat.get()) { app.classList.add('hide'); box.classList.remove('hide'); return; }
   ghApi(`/repos/${GH.owner}/${GH.repo}`).then(() => {
@@ -210,7 +264,8 @@ function initAuth(onReady) {
     onReady();
   }).catch(e => {
     box.classList.remove('hide'); app.classList.add('hide');
-    err(e.message);
+    hasVault ? showPw() : showPat();
+    errPat(e.message);
   });
 }
 
