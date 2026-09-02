@@ -56,9 +56,9 @@ bash note.sh --dry 随笔内容    # 预览模式，只看不发
 
 - **写文章**：`/write/` 在线 Markdown 编辑器，新建 / 编辑文章、上传图片、实时预览，保存即自动构建上线
 - **全站公告**：`source/announce.json`（表单编辑）
-- **友情链接**：`source/_data/links.yml`（YAML 源码编辑）
-- **作品页**：`source/_data/works.yml`（YAML 源码编辑）
-- **关于页**：`source/_data/about.yml`（YAML 源码编辑）
+- **友情链接 / 作品页**：分组卡片式表单，增删排序分组和站点，程序生成 YAML
+- **关于页**：逐模块表单（标签墙、介绍块、技能、座右铭、为什么建站、十年之约）
+- 以上三项均带「YAML 源码」模式切换，表单保存前自动做生成→解析自校验，不一致拒绝提交
 - **数据看板**：`/admin/stats.html` 访问统计
 
 登录原理：GitHub 令牌经 AES-256-GCM 加密内置在 `source/admin/secret.js`（仓库里只有密文），输入正确密码现场解密使用；令牌明文不进仓库。**改密码 / 换令牌**（Git Bash）：
