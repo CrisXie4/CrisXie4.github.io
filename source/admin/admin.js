@@ -156,12 +156,12 @@ function slugify(title) {
     .replace(/^-+|-+$/g, '') || 'untitled';
 }
 
-/* 从文件名取 hexo permalink（:year/:month/:day/:title/） */
-function postUrl(path) {
+/* 从文件名 + front-matter 日期取 hexo permalink（:year/:month/:day/:title/，:title 为完整文件名） */
+function postUrl(path, date) {
   const name = path.split('/').pop().replace(/\.md$/i, '');
-  const m = name.match(/^(\d{4})-(\d{2})-(\d{2})-(.+)$/);
+  const m = String(date || '').match(/^(\d{4})-(\d{2})-(\d{2})/);
   if (!m) return null;
-  return `/${m[1]}/${m[2]}/${m[3]}/${encodeURIComponent(m[4])}/`;
+  return `/${m[1]}/${m[2]}/${m[3]}/${encodeURIComponent(name)}/`;
 }
 
 /* ---------- 登录 ---------- */
@@ -185,7 +185,7 @@ function initAuth(onReady) {
   const hasVault = typeof window !== 'undefined' && window.VAULT && window.VAULT.ct;
   box.innerHTML = `
     <div class="card">
-      <h2>🔐 登录博客后台</h2>
+      <h2 style="justify-content:center"><svg class="ic"><use href="#i-lock"/></svg>登录博客后台</h2>
       <div id="pwWrap"${hasVault ? '' : ' class="hide"'}>
         <p class="tip" style="margin:8px 0">输入后台密码（密码校验通过后自动使用内置密钥连接 GitHub，只保存在本机浏览器）。</p>
         <input id="passInput" type="password" placeholder="后台密码" autocomplete="current-password">

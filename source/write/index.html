@@ -15,12 +15,13 @@
   <div id="app" class="hide">
     <div class="topbar">
       <div>
-        <h1 id="pageTitle">✍️ 写文章</h1>
+        <h1 id="pageTitle">写文章</h1>
+        <div class="brandline"></div>
         <div class="sub">保存后自动提交到仓库并构建上线，无需本地环境</div>
       </div>
       <div class="actions">
-        <a class="btn gray" href="/admin/">← 返回后台</a>
-        <button class="btn gray" onclick="logout()">退出</button>
+        <a class="btn gray" href="/admin/"><svg class="ic"><use href="#i-back"/></svg>返回后台</a>
+        <button class="btn gray" onclick="logout()"><svg class="ic"><use href="#i-logout"/></svg>退出</button>
       </div>
     </div>
 
@@ -50,7 +51,7 @@
           <label class="fl">封面图地址（可选）</label>
           <div style="display:flex;gap:8px;flex-wrap:wrap">
             <input id="fCover" style="flex:1;min-width:200px" placeholder="/img/uploads/xxx.png">
-            <button class="btn gray" type="button" onclick="pickImage('cover')">上传图片设为封面</button>
+            <button class="btn gray" type="button" onclick="pickImage('cover')"><svg class="ic"><use href="#i-imgup"/></svg>上传封面</button>
           </div>
         </div>
         <div class="full">
@@ -63,8 +64,8 @@
         <div class="full">
           <label class="fl">正文（Markdown）</label>
           <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
-            <button class="btn gray" type="button" onclick="pickImage('body')">🖼️ 上传图片插入正文</button>
-            <button class="btn ghost" type="button" id="previewBtn" onclick="togglePreview()">👁 预览</button>
+            <button class="btn gray" type="button" onclick="pickImage('body')"><svg class="ic"><use href="#i-upload"/></svg>上传图片插入正文</button>
+            <button class="btn ghost" type="button" id="previewBtn" onclick="togglePreview()"><svg class="ic"><use href="#i-eye"/></svg>预览</button>
           </div>
           <textarea id="writeBody" rows="20" placeholder="在这里写正文，支持 Markdown…" spellcheck="false"></textarea>
         </div>
@@ -74,7 +75,7 @@
         </div>
       </div>
       <div class="row" style="margin-top:16px">
-        <button class="btn" id="publishBtn" onclick="publish()">🚀 发布</button>
+        <button class="btn" id="publishBtn" onclick="publish()"><svg class="ic"><use href="#i-send"/></svg><span id="publishLabel">发布</span></button>
         <span class="status" id="status"></span>
       </div>
       <div class="tip" id="modeTip"></div>
@@ -85,6 +86,7 @@
 </div>
 
 <script src="/admin/secret.js"></script>
+<script src="/admin/icons.js"></script>
 <script src="/admin/vendor/md-preview.js"></script>
 <script src="/admin/admin.js"></script>
 <script>
@@ -98,8 +100,8 @@ let uploadTarget = 'cover';
 initAuth(async () => {
   $('#fDate').value = nowLocalMin();
   if (editFile) {
-    $('#pageTitle').textContent = '✏️ 编辑文章';
-    $('#publishBtn').textContent = '💾 保存修改';
+    $('#pageTitle').textContent = '编辑文章';
+    $('#publishLabel').textContent = '保存修改';
     $('#fSlug').disabled = true;
     $('#modeTip').textContent = '编辑模式：' + editFile + '（不能修改文件名，否则原网址会失效）';
     try {
@@ -118,7 +120,7 @@ initAuth(async () => {
       status('加载文章失败：' + e.message, true);
     }
   } else {
-    $('#modeTip').textContent = '新文章网址格式：/年/月/日/别名/，发布后可在后台列表里点「编辑」继续修改';
+    $('#modeTip').textContent = '新文章网址格式：/年/月/日/文件名/，发布后可在后台列表里点「编辑」继续修改';
   }
 });
 
@@ -151,7 +153,7 @@ async function publish() {
   try {
     if (editFile) {
       await putRepoFile(editFile, text, '后台修改文章: ' + title, editSha);
-      status('✅ 已保存！正在自动构建，约 1-2 分钟后生效', false);
+      status('已保存，正在自动构建，约 1–2 分钟后生效', false);
     } else {
       const slug = ($('#fSlug').value.trim() && slugify($('#fSlug').value)) || slugify(title);
       const path = 'source/_posts/' + dateVal.slice(0, 10) + '-' + slug + '.md';
@@ -163,7 +165,7 @@ async function publish() {
         return;
       }
       await putRepoFile(path, text, '后台发布文章: ' + title);
-      status('✅ 已发布！文件 ' + path + ' 正在构建，约 1-2 分钟后上线', false);
+      status('已发布，文件 ' + path + ' 正在构建，约 1–2 分钟后上线', false);
     }
   } catch (e) {
     status('发布失败：' + e.message, true);
@@ -176,7 +178,7 @@ function togglePreview() {
   const wrap = $('#previewWrap');
   const show = wrap.classList.contains('hide');
   wrap.classList.toggle('hide', !show);
-  $('#previewBtn').textContent = show ? '📝 返回编辑' : '👁 预览';
+  $('#previewBtn').innerHTML = window.icon(show ? 'back' : 'eye') + (show ? '返回编辑' : '预览');
   if (show) {
     try { $('#preview').innerHTML = mdRender($('#writeBody').value || '(空)'); }
     catch (e) { $('#preview').textContent = '预览组件加载失败，不影响发布'; }
@@ -190,7 +192,7 @@ function pickImage(target) {
     const f = $('#imgInput').files[0];
     $('#imgInput').value = '';
     if (!f) return;
-    if (f.size > 8 * 1024 * 1024) return status('图片太大（超过 8MB），先压缩一下再传', true);
+    if (f.size > 8 * 1024 * 1024) return status('图片超过 8MB，先压缩一下再上传', true);
     const safe = f.name.replace(/[^\w\u4e00-\u9fa5.-]/g, '-');
     const b64 = bufToB64(await f.arrayBuffer());
     status('上传图片中…');
@@ -206,10 +208,10 @@ function pickImage(target) {
       const url = '/img/uploads/' + path.split('/').pop();
       if (uploadTarget === 'cover') {
         $('#fCover').value = url;
-        status('✅ 封面已上传：' + url, false);
+        status('封面已上传：' + url, false);
       } else {
         insertAtCursor('\n![' + safe.replace(/\.[a-z]+$/i, '') + '](' + url + ')\n');
-        status('✅ 图片已上传并插入正文', false);
+        status('图片已上传并插入正文', false);
       }
     } catch (e) {
       status('上传失败：' + e.message, true);

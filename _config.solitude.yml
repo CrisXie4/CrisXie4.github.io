@@ -568,7 +568,7 @@ footer:
 # 404 页面
 errorpage:
   img: /img/404.avif
-  text: 出现了错误，页面不存在 # Text
+  text: 页面不存在或已被移动，从首页或下面的最近文章继续浏览 # Text
   recommendList: true
 # --------------------------- end ---------------------------
 
@@ -744,6 +744,7 @@ extends:
   # Insert in head
   # 插入到 head
   head:
+    - <meta name="msvalidate.01" content="236926E193916AC1C7542E4D15F3482D">
     - <link rel="stylesheet" href="/schedule/schedule.css">
     - <link rel="stylesheet" href="/css/custom.css">
     - <script defer src="https://umami.crisxie.top/script.js" data-website-id="a9a4a6a0-a722-42b8-9699-b9e78fa69a06"></script>

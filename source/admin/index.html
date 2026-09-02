@@ -15,42 +15,52 @@
   <div id="app" class="hide">
     <div class="topbar">
       <div>
-        <h1>🛠️ 博客后台</h1>
-        <div class="sub">直连 GitHub 仓库，保存后约 1-2 分钟自动上线（GitHub Pages + 服务器同步更新）</div>
+        <h1>博客后台</h1>
+        <div class="brandline"></div>
+        <div class="sub">改动保存到 GitHub 仓库后自动构建，约 1–2 分钟后全站生效</div>
       </div>
       <div class="actions">
-        <a class="btn ghost" href="/admin/stats.html">📊 数据看板</a>
-        <button class="btn gray" onclick="logout()">退出</button>
+        <a class="btn ghost" href="/admin/stats.html"><svg class="ic"><use href="#i-chart"/></svg>数据看板</a>
+        <button class="btn gray" onclick="logout()"><svg class="ic"><use href="#i-logout"/></svg>退出</button>
       </div>
     </div>
 
+    <div class="sec-label">快捷操作</div>
     <div class="tiles">
       <a class="tile primary" href="/write/">
-        <div class="ico">✍️</div><div class="t">写文章</div><div class="d">新建 / 发布</div>
+        <span class="badge"><svg class="ic"><use href="#i-write"/></svg></span>
+        <span class="t">写文章</span>
+        <span class="d">新建草稿并发布</span>
       </a>
       <a class="tile" href="#edit=announce">
-        <div class="ico">📣</div><div class="t">全站公告</div><div class="d">底部公告条</div>
+        <span class="badge"><svg class="ic"><use href="#i-announce"/></svg></span>
+        <span class="t">全站公告</span>
+        <span class="d">底部公告条文字</span>
       </a>
       <a class="tile" href="#edit=links">
-        <div class="ico">🤝</div><div class="t">友情链接</div><div class="d">links.yml</div>
+        <span class="badge"><svg class="ic"><use href="#i-link"/></svg></span>
+        <span class="t">友情链接</span>
+        <span class="d">links.yml</span>
       </a>
       <a class="tile" href="#edit=works">
-        <div class="ico">🎨</div><div class="t">作品页</div><div class="d">works.yml</div>
+        <span class="badge"><svg class="ic"><use href="#i-works"/></svg></span>
+        <span class="t">作品页</span>
+        <span class="d">works.yml</span>
       </a>
       <a class="tile" href="#edit=about">
-        <div class="ico">🙋</div><div class="t">关于页</div><div class="d">about.yml</div>
-      </a>
-      <a class="tile" href="/admin/stats.html">
-        <div class="ico">📈</div><div class="t">数据看板</div><div class="d">访问统计</div>
+        <span class="badge"><svg class="ic"><use href="#i-about"/></svg></span>
+        <span class="t">关于页</span>
+        <span class="d">about.yml</span>
       </a>
     </div>
 
+    <div class="sec-label">内容</div>
     <div class="card" id="postsCard">
-      <h2>📄 文章管理</h2>
-      <div id="postsStatus" class="tip">加载中…</div>
+      <h2><svg class="ic"><use href="#i-post"/></svg>文章管理</h2>
+      <div id="postsStatus" class="tip">正在从仓库读取文章列表…</div>
       <div style="overflow-x:auto">
       <table>
-        <thead><tr><th>标题</th><th style="width:130px">发布时间</th><th style="width:230px">文件</th><th style="width:150px">操作</th></tr></thead>
+        <thead><tr><th>标题</th><th style="width:128px">发布时间</th><th style="width:250px">文件</th><th style="width:150px">操作</th></tr></thead>
         <tbody id="postsBody"></tbody>
       </table>
       </div>
@@ -62,10 +72,11 @@
     <div class="topbar">
       <div>
         <h1 id="edTitle">编辑</h1>
+        <div class="brandline"></div>
         <div class="sub mono" id="edPath"></div>
       </div>
       <div class="actions">
-        <button class="btn gray" onclick="closeEditor()">← 返回后台</button>
+        <button class="btn gray" onclick="closeEditor()"><svg class="ic"><use href="#i-back"/></svg>返回后台</button>
       </div>
     </div>
 
@@ -73,33 +84,34 @@
       <label class="fl" style="margin-top:0">公告开关</label>
       <label style="font-size:14px"><input type="checkbox" id="anEnabled" style="vertical-align:-2px"> 启用公告（关闭后全站隐藏公告条）</label>
       <label class="fl">公告内容（支持 HTML）</label>
-      <input id="anText" style="width:100%" placeholder="🎉欢迎各位进入六哥的博客！">
+      <input id="anText" style="width:100%" placeholder="公告文字">
       <label class="fl">跳转链接（可选）</label>
       <input id="anLink" style="width:100%" placeholder="https://…">
     </div>
 
     <div class="card" id="edTextForm" style="display:none">
-      <div class="tip" style="margin:0 0 8px">直接编辑 YAML 源码，保存后自动提交。格式写错会导致构建失败，改前建议先复制一份备份。</div>
+      <div class="tip" style="margin:0 0 8px">直接编辑 YAML 源码。格式写错会导致构建失败，改前建议先复制一份备份。</div>
       <textarea id="edText" class="file" rows="24" spellcheck="false"></textarea>
     </div>
 
     <div class="row">
-      <button class="btn" id="edSave">💾 保存并发布</button>
+      <button class="btn" id="edSave"><svg class="ic"><use href="#i-save"/></svg>保存并发布</button>
       <span class="status" id="edStatus"></span>
     </div>
   </div>
 </div>
 
 <script src="/admin/secret.js"></script>
+<script src="/admin/icons.js"></script>
 <script src="/admin/admin.js"></script>
 <script>
 'use strict';
 
 const DATA_FILES = {
-  announce: { path: 'source/announce.json',     label: '📣 全站公告', type: 'json' },
-  links:    { path: 'source/_data/links.yml',   label: '🤝 友情链接', type: 'text' },
-  works:    { path: 'source/_data/works.yml',   label: '🎨 作品页',   type: 'text' },
-  about:    { path: 'source/_data/about.yml',   label: '🙋 关于页',   type: 'text' },
+  announce: { path: 'source/announce.json',     label: '全站公告', type: 'json' },
+  links:    { path: 'source/_data/links.yml',   label: '友情链接', type: 'text' },
+  works:    { path: 'source/_data/works.yml',   label: '作品页',   type: 'text' },
+  about:    { path: 'source/_data/about.yml',   label: '关于页',   type: 'text' },
 };
 let edSha = null, edKey = null;
 
@@ -165,11 +177,11 @@ $('#edSave').onclick = async () => {
   $('#edSave').disabled = true;
   edStatus('提交中…');
   try {
-    const j = await putRepoFile(conf.path, text, '后台修改: ' + conf.label.replace(/^\S+\s/, '') + '（' + conf.path + '）', edSha);
+    const j = await putRepoFile(conf.path, text, '后台修改: ' + conf.label + '（' + conf.path + '）', edSha);
     edSha = j.content.sha;
-    edStatus('✅ 已保存！正在自动构建，约 1-2 分钟后上线', false);
+    edStatus('已保存，正在自动构建，约 1–2 分钟后上线', false);
   } catch (e) {
-    edStatus('保存失败：' + e.message + (e.code === 'HTTP' ? '（可能别人也改过此文件，点“返回后台”重新进入再试）' : ''), true);
+    edStatus('保存失败：' + e.message + (e.code === 'HTTP' ? '（可能文件刚被别处修改过，点「返回后台」重新进入再试）' : ''), true);
   }
   $('#edSave').disabled = false;
 };
@@ -185,7 +197,7 @@ async function loadPosts() {
   try {
     const tree = await listTree();
     const files = tree.filter(t => t.type === 'blob' && /^source\/_posts\/.+\.md$/.test(t.path)).map(t => t.path);
-    if (!files.length) { st.textContent = '还没有文章，点上面「写文章」发布第一篇吧'; return; }
+    if (!files.length) { st.textContent = '还没有文章。点上方「写文章」发布第一篇。'; return; }
     const posts = (await pool(files, async p => {
       try {
         const { text } = await getRepoFile(p);
@@ -195,14 +207,14 @@ async function loadPosts() {
     })).sort((a, b) => b.date.localeCompare(a.date));
     st.textContent = '';
     body.innerHTML = posts.map(p => {
-      const url = postUrl(p.path);
+      const url = postUrl(p.path, p.date);
       return `<tr>
         <td><div class="title">${esc(p.title)}</div></td>
-        <td>${esc(p.date.replace('T', ' ').slice(0, 16))}</td>
+        <td class="num">${esc(p.date.replace('T', ' ').slice(0, 16))}</td>
         <td><div class="url mono">${esc(p.path.split('/').pop())}</div></td>
-        <td>
-          <a class="btn small" href="/write/?file=${encodeURIComponent(p.path)}">编辑</a>
-          ${url ? `<a class="btn small gray" href="${esc(url)}" target="_blank">查看</a>` : ''}
+        <td class="actions-cell">
+          <a class="btn small" href="/write/?file=${encodeURIComponent(p.path)}"><svg class="ic"><use href="#i-write"/></svg>编辑</a>
+          ${url ? `<a class="btn small gray" href="${esc(url)}" target="_blank"><svg class="ic"><use href="#i-eye"/></svg>查看</a>` : ''}
         </td>
       </tr>`;
     }).join('');

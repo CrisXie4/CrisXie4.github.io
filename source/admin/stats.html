@@ -6,270 +6,284 @@
 <meta name="robots" content="noindex">
 <title>数据看板 | 六哥</title>
 <link rel="icon" href="/img/avatar-256.png">
+<link rel="stylesheet" href="/admin/admin.css">
 <style>
-:root{--red:#C2543E;--amber:#E3A857;--brown:#8A6E52;--ink:#3a3140;--bg:#f6f2ef;--card:#fff}
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--ink);min-height:100vh}
-.wrap{max-width:1080px;margin:0 auto;padding:24px 16px 60px}
-h1{font-size:22px;margin:8px 0 4px}
-.sub{color:#8a7f6f;font-size:13px;margin-bottom:20px}
-.card{background:var(--card);border-radius:14px;padding:20px;box-shadow:0 2px 10px rgba(60,40,20,.06);margin-bottom:18px}
-.row{display:flex;gap:14px;flex-wrap:wrap}
-.stat{flex:1;min-width:140px;background:var(--card);border-radius:14px;padding:18px;box-shadow:0 2px 10px rgba(60,40,20,.06)}
-.stat .n{font-size:30px;font-weight:700;color:var(--red)}
-.stat:nth-child(2) .n{color:var(--brown)}
-.stat .l{font-size:13px;color:#8a7f6f;margin-top:4px}
-.btn{background:var(--red);color:#fff;border:none;border-radius:10px;padding:10px 18px;font-size:14px;cursor:pointer}
-.btn.gray{background:#8a7f6f}
-input,select{border:1px solid #ddd;border-radius:10px;padding:10px 12px;font-size:14px;background:#fff}
-table{width:100%;border-collapse:collapse;font-size:14px}
-th,td{text-align:left;padding:9px 8px;border-bottom:1px solid #f0e9e2}
-th{color:#8a7f6f;font-weight:600;font-size:12px}
-.bar{background:linear-gradient(90deg,var(--red),var(--amber));height:6px;border-radius:3px}
-.url{color:#6b5d52;font-size:12px;word-break:break-all}
-.title{font-weight:600}
+.kpis{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-bottom:18px}
+.kpi{background:var(--card);border-radius:var(--r-lg);padding:18px;box-shadow:var(--shadow)}
+.kpi .n{font-size:28px;font-weight:700;color:var(--red);font-variant-numeric:tabular-nums}
+.kpi:nth-child(2) .n{color:var(--brown)}
+.kpi:nth-child(3) .n{color:#B58B45}
+.kpi .l{font-size:12px;color:var(--muted);margin-top:4px}
+.kpi .d{font-size:11px;color:var(--faint);margin-top:2px}
+.range{display:inline-flex;border:1px solid #DDD5CC;border-radius:var(--r-md);overflow:hidden;background:#fff}
+.range button{border:none;background:transparent;padding:8px 14px;font-size:13px;color:var(--muted);cursor:pointer}
+.range button.on{background:var(--red);color:#fff}
+.sect{margin-top:22px}
+.sect .desc{font-size:12px;color:var(--faint);margin:-8px 0 10px}
+#chart svg{width:100%;display:block}
+.legend{display:flex;gap:18px;font-size:12px;color:var(--muted);margin-top:6px}
+.legend i{display:inline-block;width:18px;height:0;border-top:2.5px solid var(--red);vertical-align:middle;margin-right:6px;border-radius:2px}
+.legend i.v2{border-top:2px dashed var(--brown)}
+#filter{width:100%;max-width:340px;margin-bottom:10px}
+.bar{background:linear-gradient(90deg,var(--red),var(--amber));height:6px;border-radius:3px;min-width:2px}
 .pct{color:var(--red);font-weight:700;white-space:nowrap}
-h2{font-size:16px;margin-bottom:12px}
-.toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:18px}
-.hide{display:none!important}
-#login .card{max-width:480px;margin:60px auto;text-align:center}
-#login input,#login select{width:100%;margin:8px 0}
-.tip{font-size:12px;color:#a39484;margin-top:8px}
-a{color:var(--red)}
-#err{color:var(--red);font-size:13px;margin-top:10px;min-height:16px}
-svg text{font-size:10px;fill:#a39484}
-.ref{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f0e9e2;font-size:13px}
-label.fl{display:block;text-align:left;font-size:12px;color:#8a7f6f;margin-top:8px}
-@media(max-width:600px){.stat{min-width:45%}.wrap{padding:16px 10px 40px}}
+.ref{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid var(--line);font-size:13px}
+.ref:last-child{border-bottom:none}
+svg text{font-size:10px;fill:var(--faint)}
+#cfg input{width:100%}
+.footer-links{display:flex;gap:16px;flex-wrap:wrap;margin-top:26px;font-size:13px}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <h1>📊 数据看板</h1>
-  <div class="sub">数据来自自建 Umami（真实访客统计），凭据仅保存在本机浏览器</div>
-
-  <div class="card" style="border-left:4px solid var(--red)">
-    <b>📊 打开完整数据后台</b> ——
-    <a href="https://cloud.umami.is/share/YTYSw8vSt75GmGei" target="_blank">Umami 数据中心（含每篇文章浏览量、对比、来源、实时访问）</a>
-    <div class="tip">建议收藏该链接 / 右键添加到书签。此链接为公开只读视图。</div>
+  <div class="topbar">
+    <div>
+      <h1>数据看板</h1>
+      <div class="brandline"></div>
+      <div class="sub">访客数据来自自建 Umami（umami.crisxie.top），按页面去重统计，不含自己人在预览时的刷新（Umami 同一会话 30 分钟内不重复计数）</div>
+    </div>
+    <div class="actions">
+      <a class="btn ghost" href="/admin/"><svg class="ic"><use href="#i-back"/></svg>返回后台</a>
+    </div>
   </div>
 
-  <div id="login" class="hide">
-    <div class="card">
-      <h2>连接统计服务</h2>
-      <label class="fl">模式</label>
-      <select id="inMode" onchange="renderMode()">
-        <option value="self" selected>自建 Umami（本服务器）</option>
-        <option value="cloud">Umami Cloud（API 密钥）</option>
-      </select>
-      <div id="selfFields">
-        <label class="fl">服务器 API 地址</label>
-        <input id="inBase" placeholder="http://38.76.168.127:1378/umami/api">
-        <label class="fl">用户名</label>
-        <input id="inUser" placeholder="admin">
-        <label class="fl">密码</label>
-        <input id="inPass" type="password" placeholder="umami 后台密码">
-      </div>
-      <div id="cloudFields" class="hide">
-        <label class="fl">API 密钥（cloud.umami.is → 设置 → API 密钥）</label>
-        <input id="inKey" placeholder="umami_api_key_xxx">
-      </div>
+  <!-- 连接配置 -->
+  <div id="cfg" class="hide">
+    <div class="card" style="max-width:520px;margin:40px auto">
+      <h2><svg class="ic"><use href="#i-gear"/></svg>连接统计服务</h2>
+      <label class="fl" style="margin-top:0">Umami 接口地址</label>
+      <input id="inBase" placeholder="https://umami.crisxie.top/api">
+      <label class="fl">用户名</label>
+      <input id="inUser" placeholder="admin">
+      <label class="fl">密码</label>
+      <input id="inPass" type="password" placeholder="Umami 后台密码">
       <label class="fl">网站 ID</label>
-      <input id="inSite">
-      <button class="btn" onclick="saveAndLoad()">保存并查看</button>
-      <button class="btn gray" onclick="loadAll()">仅查看</button>
-      <div id="err"></div>
-      <div class="tip">凭据仅保存在你的浏览器 localStorage，不会上传到博客仓库。</div>
+      <input id="inSite" class="mono" placeholder="a9a4a6a0-…">
+      <div style="margin-top:14px"><button class="btn" id="cfgSave">保存并连接</button></div>
+      <div id="err" class="status err" style="margin-top:10px"></div>
+      <div class="tip">账号密码只保存在这台设备的浏览器里，用于直接向 Umami 查询，不会上传到博客仓库。<br>忘记密码可在服务器 Umami 后台重置，或用公开只读报表：<a href="https://cloud.umami.is/share/YTYSw8vSt75GmGei" target="_blank">cloud.umami.is/share/YTYSw8vSt75GmGei</a></div>
     </div>
   </div>
 
+  <!-- 数据区 -->
   <div id="dash" class="hide">
-    <div class="toolbar">
-      <select id="range" onchange="loadAll()">
-        <option value="86400000">今天</option>
-        <option value="604800000" selected>近 7 天</option>
-        <option value="2592000000">近 30 天</option>
-        <option value="7776000000">近 90 天</option>
-      </select>
-      <button class="btn gray" onclick="loadAll()">刷新</button>
-      <button class="btn gray" onclick="resetCfg()">重新配置</button>
-      <a id="umamiLink" href="#" target="_blank" style="align-self:center;font-size:13px">Umami 官方界面 ↗</a>
+    <div class="toolbar" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:18px">
+      <div class="range" id="rangeBox">
+        <button data-v="day">今天</button>
+        <button data-v="7d" class="on">近 7 天</button>
+        <button data-v="30d">近 30 天</button>
+        <button data-v="90d">近 90 天</button>
+      </div>
+      <button class="btn gray" id="refresh"><svg class="ic"><use href="#i-eye"/></svg>刷新</button>
+      <button class="btn gray" id="reconfig"><svg class="ic"><use href="#i-gear"/></svg>修改连接</button>
     </div>
 
-    <div class="row" id="cards"></div>
-
-    <div class="card"><h2>访问趋势（浏览量 / 访客数）</h2><div id="chart"></div></div>
-
-    <div class="card">
-      <h2>每篇文章 / 页面数据对比</h2>
-      <input id="filter" placeholder="筛选标题或路径…" style="width:100%;max-width:340px;margin-bottom:10px" oninput="renderPages()">
-      <div style="overflow-x:auto">
-      <table>
-        <thead><tr><th style="width:34%">标题 / 路径</th><th>热度</th><th style="width:60px">浏览量</th><th style="width:70px">占比</th></tr></thead>
-        <tbody id="pages"></tbody>
-      </table>
+    <div class="sect">
+      <h2><svg class="ic"><use href="#i-chart"/></svg>总览</h2>
+      <div class="kpis">
+        <div class="kpi"><div class="n" id="kPv">–</div><div class="l">浏览量（PV）</div><div class="d">所选时间段内页面被打开的总次数</div></div>
+        <div class="kpi"><div class="n" id="kUv">–</div><div class="l">访客数（UV）</div><div class="d">按浏览器去重的人数</div></div>
+        <div class="kpi"><div class="n" id="kSs">–</div><div class="l">访问次数</div><div class="d">一个个独立访问会话</div></div>
+        <div class="kpi"><div class="n" id="kAvg">–</div><div class="l">平均停留</div><div class="d">每次访问的平均时长</div></div>
       </div>
     </div>
 
-    <div class="card"><h2>来源 TOP 10</h2><div id="refs"></div></div>
+    <div class="sect">
+      <h2><svg class="ic"><use href="#i-clock"/></svg>访问趋势</h2>
+      <div class="card">
+        <div id="chart"><div class="tip">暂无趋势数据</div></div>
+        <div class="legend"><span><i></i>浏览量</span><span><i class="v2"></i>访客数</span></div>
+      </div>
+    </div>
+
+    <div class="sect">
+      <h2><svg class="ic"><use href="#i-post"/></svg>内容数据</h2>
+      <div class="desc">每个页面在所选时间段内的浏览量，输入关键词可筛选</div>
+      <div class="card">
+        <input id="filter" placeholder="筛选标题或路径…">
+        <div style="overflow-x:auto">
+        <table>
+          <thead><tr><th style="width:42%">页面</th><th style="width:26%">热度</th><th style="width:90px">浏览量</th><th style="width:70px">占比</th></tr></thead>
+          <tbody id="pages"></tbody>
+        </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="sect">
+      <h2><svg class="ic"><use href="#i-cursor"/></svg>访问来源</h2>
+      <div class="desc">访客从哪里点进来的，前 10 名；「直接访问」指地址栏输入或收藏夹打开</div>
+      <div class="card"><div id="refs"><div class="tip">暂无来源数据</div></div></div>
+    </div>
+
+    <div class="footer-links">
+      <a href="https://cloud.umami.is/share/YTYSw8vSt75GmGei" target="_blank">打开完整只读报表</a>
+      <a href="https://umami.crisxie.top" target="_blank">打开 Umami 管理后台</a>
+    </div>
   </div>
 </div>
 
+<script src="/admin/icons.js"></script>
 <script>
-let SITE_DEFAULT='a9a4a6a0-a722-42b8-9699-b9e78fa69a06';
-let titles={};
-const TZ=(Intl.DateTimeFormat().resolvedOptions().timeZone||'Asia/Shanghai');
-const $=id=>document.getElementById(id);
-const ls={get:k=>localStorage.getItem(k),set:(k,v)=>localStorage.setItem(k,v),del:k=>localStorage.removeItem(k)};
-let token='';
-const site=()=>ls.get('umami_site')||SITE_DEFAULT;
+'use strict';
+const $ = s => document.querySelector(s);
+const SITE_DEFAULT = 'a9a4a6a0-a722-42b8-9699-b9e78fa69a06';
+const TZ = (Intl.DateTimeFormat().resolvedOptions().timeZone || 'Asia/Shanghai');
+let titles = {};
+let token = '';
+let range = '7d';
 
-function cfg(){
-  const mode=ls.get('umami_mode')||'self';
-  const base=ls.get('umami_base')||(mode==='self'?'https://umami.crisxie.top/api':'https://api.umami.is/v1');
-  return {mode,base};
+const ls = { get: k => localStorage.getItem(k), set: (k, v) => localStorage.setItem(k, v), del: k => localStorage.removeItem(k) };
+const base = () => (ls.get('umami_base') || 'https://umami.crisxie.top/api').replace(/\/$/, '');
+const site = () => ls.get('umami_site') || SITE_DEFAULT;
+
+function fmtTime(s) {
+  s = Math.round(s || 0);
+  const m = Math.floor(s / 60);
+  return m ? m + ' 分 ' + (s % 60) + ' 秒' : s + ' 秒';
 }
 
-async function ensureToken(force){
-  if(!force && token) return token;
-  const user=ls.get('umami_user')||'', pass=ls.get('umami_pass')||'';
-  const {base}=cfg();
-  const r=await fetch(base+'/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:user,password:pass})});
-  if(!r.ok) throw new Error('KEY');
-  const j=await r.json(); token=j.token; ls.set('umami_token',token); return token;
+async function login() {
+  const r = await fetch(base() + '/auth/login', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username: ls.get('umami_user') || '', password: ls.get('umami_pass') || '' })
+  });
+  if (!r.ok) throw new Error(r.status === 401 ? '用户名或密码不正确' : 'Umami 返回 ' + r.status);
+  token = (await r.json()).token;
 }
 
-async function api(path,params){
-  const {mode,base}=cfg();
-  const u=new URL(base+path);
-  Object.entries(params||{}).forEach(([k,v])=>u.searchParams.set(k,v));
-  const headers={};
-  if(mode==='cloud'){ headers['x-umami-api-key']=ls.get('umami_api_key')||''; }
-  else { headers['Authorization']='Bearer '+(await ensureToken(false)); }
-  let r=await fetch(u,{headers});
-  if(r.status===401&&mode==='self'){ token=''; r=await fetch(u,{headers:Object.assign(headers,{'Authorization':'Bearer '+(await ensureToken(true))})}); }
-  if(r.status===401||r.status===403) throw new Error('KEY');
-  if(!r.ok) throw new Error('HTTP '+r.status);
+async function api(path, params) {
+  const u = new URL(base() + path);
+  Object.entries(params || {}).forEach(([k, v]) => u.searchParams.set(k, v));
+  const r = await fetch(u, { headers: { Authorization: 'Bearer ' + token } });
+  if (r.status === 401) { token = ''; await login(); return api(path, params); }
+  if (!r.ok) throw new Error('Umami 返回 ' + r.status);
   return r.json();
 }
 
-function renderMode(){
-  const m=$('inMode').value;
-  $('selfFields').classList.toggle('hide',m!=='self');
-  $('cloudFields').classList.toggle('hide',m==='self');
+function showCfg(msg) {
+  $('#dash').classList.add('hide');
+  $('#cfg').classList.remove('hide');
+  $('#inBase').value = base();
+  $('#inUser').value = ls.get('umami_user') || 'admin';
+  $('#inSite').value = ls.get('umami_site') || SITE_DEFAULT;
+  $('#err').textContent = msg || '';
 }
 
-async function saveAndLoad(){
-  const m=$('inMode').value;
-  ls.set('umami_mode',m);
-  ls.set('umami_site',$('inSite').value.trim()||SITE_DEFAULT);
-  if(m==='self'){
-    ls.set('umami_base',$('inBase').value.trim());
-    ls.set('umami_user',$('inUser').value.trim());
-    ls.set('umami_pass',$('inPass').value);
-    token='';
-  } else {
-    ls.set('umami_api_key',$('inKey').value.trim());
-  }
-  $('err').textContent='';
-  try{ await loadAll(); }catch(e){ showLogin(e); }
+function renderRange() {
+  document.querySelectorAll('#rangeBox button').forEach(b => b.classList.toggle('on', b.dataset.v === range));
+}
+function rangeStart() {
+  if (range === 'day') return new Date(new Date().setHours(0, 0, 0, 0)).getTime();
+  const days = { '7d': 7, '30d': 30, '90d': 90 }[range];
+  return Date.now() - days * 86400000;
 }
 
-function resetCfg(){ ls.del('umami_token'); showLogin({message:''}); }
-function showLogin(e){
-  $('dash').classList.add('hide'); $('login').classList.remove('hide');
-  renderMode();
-  $('inBase').value=ls.get('umami_base')||'https://umami.crisxie.top/api';
-  $('inUser').value=ls.get('umami_user')||'admin';
-  $('inSite').value=ls.get('umami_site')||SITE_DEFAULT;
-  if(e&&e.message==='KEY') $('err').textContent='登录失败：账号/密码或密钥不正确';
-  else if(e&&e.message) $('err').textContent='加载失败：'+e.message;
-}
-
-async function loadTitles(){
-  if(Object.keys(titles).length) return;
-  try{
-    const x=await (await fetch('/sitemap.xml')).text();
-    const doc=new DOMParser().parseFromString(x,'text/xml');
-    [...doc.querySelectorAll('url')].forEach(u=>{
-      const loc=u.querySelector('loc')?.textContent||'';
-      const t=u.querySelector('title')?.textContent;
-      if(loc&&t) titles[new URL(loc).pathname]=t;
+async function loadTitles() {
+  if (Object.keys(titles).length) return;
+  try {
+    const x = await (await fetch('/sitemap.xml')).text();
+    const doc = new DOMParser().parseFromString(x, 'text/xml');
+    [...doc.querySelectorAll('url')].forEach(u => {
+      const loc = u.querySelector('loc')?.textContent || '';
+      const t = u.querySelector('title')?.textContent;
+      if (loc && t) titles[new URL(loc).pathname] = t;
     });
-  }catch(e){}
+  } catch (e) {}
 }
 
-function fmtTime(s){ s=Math.round(s||0); const m=Math.floor(s/60); return m? m+' 分 '+(s%60)+' 秒' : s+' 秒'; }
-
-async function loadAll(){
-  if(cfg().mode==='self' && !ls.get('umami_pass')){ showLogin({message:''}); return; }
-  if(cfg().mode==='cloud' && !ls.get('umami_api_key')){ showLogin({message:''}); return; }
-  $('login').classList.add('hide'); $('dash').classList.remove('hide');
-  $('umamiLink').href = ls.get('umami_base') ? ls.get('umami_base').replace(/\/api$/,'') : 'https://cloud.umami.is';
-  const days=parseInt($('range').value,10);
-  const end=Date.now(), start=(days===86400000)? new Date(new Date().setHours(0,0,0,0)).getTime() : end-days;
-  try{
-    await loadTitles();
-    const [stats,pv,urls,refs]=await Promise.all([
-      api(`/websites/${site()}/stats`,{startAt:start,endAt:end}),
-      api(`/websites/${site()}/pageviews`,{startAt:start,endAt:end,unit:'day',timezone:TZ}),
-      api(`/websites/${site()}/metrics`,{startAt:start,endAt:end,type:'url'}),
-      api(`/websites/${site()}/metrics`,{startAt:start,endAt:end,type:'referrer'}).catch(()=>[])
-    ]);
-    const v=o=>o&&typeof o==='object'&&'value'in o? o.value : (o||0);
-    const st=stats && (stats.pageviews?stats:{pageviews:stats});
-    $('cards').innerHTML=
-      `<div class="stat"><div class="n">${v(st.pageviews).toLocaleString()}</div><div class="l">浏览量 PV</div></div>`+
-      `<div class="stat"><div class="n">${v(st.visitors||stats.visitors||0).toLocaleString()}</div><div class="l">访客 UV</div></div>`+
-      `<div class="stat"><div class="n">${v(st.sessions||stats.sessions||0).toLocaleString()}</div><div class="l">访问次数</div></div>`+
-      `<div class="stat"><div class="n">${fmtTime((st.totaltime&&st.totaltime.value||stats.totaltime||0) / Math.max(1,v(st.sessions||stats.sessions||1)))}</div><div class="l">平均停留</div></div>`;
-    drawChart(pv);
-    window._pages=(Array.isArray(urls)?urls:(urls&&urls.urls)||[]).map(i=>({url:i.x,n:i.y}));
-    renderPages();
-    const rl=Array.isArray(refs)?refs:[];
-    $('refs').innerHTML=rl.length? rl.slice(0,10).map(i=>`<div class="ref"><span>${(i.x||'直接访问').replace(/^https?:\/\//,'').slice(0,50)}</span><b>${i.y}</b></div>`).join('') : '<div class="tip">暂无来源数据</div>';
-  }catch(e){ showLogin(e); }
-}
-
-function renderPages(){
-  const q=($('filter').value||'').toLowerCase();
-  const rows=(window._pages||[]).filter(p=>!q||(titles[p.url]||'').toLowerCase().includes(q)||p.url.toLowerCase().includes(q));
-  const max=Math.max(1,...rows.map(r=>r.n));
-  const total=rows.reduce((s,r)=>s+r.n,0)||1;
-  $('pages').innerHTML= rows.length? rows.map(r=>{
-    const t=titles[r.url]||decodeURIComponent(r.url);
-    return `<tr><td><div class="title">${t}</div><div class="url">${r.url}</div></td>`+
-      `<td><div class="bar" style="width:${Math.round(r.n/max*100)}%"></div></td>`+
-      `<td><b>${r.n}</b></td><td class="pct">${Math.round(r.n/total*100)}%</td></tr>`;
-  }).join('') : '<tr><td colspan="4" class="tip">这个时间段还没有数据（新站数据会慢慢积累）</td></tr>';
-}
-
-function drawChart(pv){
-  const P=Array.isArray(pv.pageviews)?pv.pageviews:[], V=Array.isArray(pv.visitors)?pv.visitors:[];
-  if(!P.length){ $('chart').innerHTML='<div class="tip">暂无趋势数据</div>'; return; }
-  const W=Math.min(1000,innerWidth-60), H=200, pad=28;
-  const all=P.concat(V).map(i=>i.y); const max=Math.max(1,...all);
-  const x=i=>pad+i*(W-pad*2)/Math.max(1,P.length-1);
-  const y=val=>H-20-(H-40)*val/max;
-  const line=arr=>arr.map((p,i)=>`${i?'L':'M'}${x(i).toFixed(1)},${y(p.y).toFixed(1)}`).join(' ');
-  const area=line(P)+` L${x(P.length-1)},${H-20} L${x(0)},${H-20} Z`;
-  const labels=[P[0].x.slice(5), P[Math.floor(P.length/2)].x.slice(5), P[P.length-1].x.slice(5)];
-  $('chart').innerHTML=`<svg width="100%" viewBox="0 0 ${W} ${H}">
+function drawChart(pv) {
+  const P = Array.isArray(pv.pageviews) ? pv.pageviews : [], V = Array.isArray(pv.visitors) ? pv.visitors : [];
+  if (!P.length) { $('#chart').innerHTML = '<div class="tip">这个时间段还没有数据，等有访客后再来看</div>'; return; }
+  const W = Math.min(1000, innerWidth - 60), H = 200, pad = 28;
+  const max = Math.max(1, ...P.concat(V).map(i => i.y));
+  const x = i => pad + i * (W - pad * 2) / Math.max(1, P.length - 1);
+  const y = val => H - 20 - (H - 40) * val / max;
+  const line = arr => arr.map((p, i) => `${i ? 'L' : 'M'}${x(i).toFixed(1)},${y(p.y).toFixed(1)}`).join(' ');
+  const area = line(P) + ` L${x(P.length - 1)},${H - 20} L${x(0)},${H - 20} Z`;
+  const labels = [P[0].x.slice(5), P[Math.floor(P.length / 2)].x.slice(5), P[P.length - 1].x.slice(5)];
+  $('#chart').innerHTML = `<svg width="100%" viewBox="0 0 ${W} ${H}">
     <defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="#C2543E" stop-opacity=".28"/><stop offset="1" stop-color="#E3A857" stop-opacity=".04"/>
     </linearGradient></defs>
     <path d="${area}" fill="url(#g)"/>
     <path d="${line(P)}" fill="none" stroke="#C2543E" stroke-width="2.5"/>
     <path d="${line(V)}" fill="none" stroke="#8A6E52" stroke-width="1.8" stroke-dasharray="4 3"/>
-    <text x="${pad}" y="${H-4}">${labels[0]}</text>
-    <text x="${W/2-14}" y="${H-4}">${labels[1]}</text>
-    <text x="${W-46}" y="${H-4}">${labels[2]}</text>
-  </svg>
-  <div class="tip"><span style="color:#C2543E">━</span> 浏览量　<span style="color:#8A6E52">╌</span> 访客数</div>`;
+    <text x="${pad}" y="${H - 4}">${labels[0]}</text>
+    <text x="${W / 2 - 14}" y="${H - 4}">${labels[1]}</text>
+    <text x="${W - 46}" y="${H - 4}">${labels[2]}</text>
+  </svg>`;
 }
 
-showLogin({message:''});
-loadAll();
+let pageRows = [];
+function renderPages() {
+  const q = ($('#filter').value || '').toLowerCase();
+  const rows = pageRows.filter(p => !q || (titles[p.url] || '').toLowerCase().includes(q) || p.url.toLowerCase().includes(q));
+  const max = Math.max(1, ...rows.map(r => r.n));
+  const total = rows.reduce((s, r) => s + r.n, 0) || 1;
+  $('#pages').innerHTML = rows.length ? rows.map(r => {
+    const t = titles[r.url] || decodeURIComponent(r.url);
+    return `<tr><td><div class="title">${t}</div><div class="url">${r.url}</div></td>
+      <td><div class="bar" style="width:${Math.round(r.n / max * 100)}%"></div></td>
+      <td class="num"><b>${r.n}</b></td><td class="pct num">${Math.round(r.n / total * 100)}%</td></tr>`;
+  }).join('') : '<tr><td colspan="4" class="tip">这个时间段还没有页面数据</td></tr>';
+}
+
+async function loadAll() {
+  try {
+    await loadTitles();
+    const startAt = rangeStart(), endAt = Date.now(), unit = range === 'day' ? 'hour' : 'day';
+    const [stats, pv, urls, refs] = await Promise.all([
+      api(`/websites/${site()}/stats`, { startAt, endAt }),
+      api(`/websites/${site()}/pageviews`, { startAt, endAt, unit, timezone: TZ }),
+      api(`/websites/${site()}/metrics`, { startAt, endAt, type: 'url' }),
+      api(`/websites/${site()}/metrics`, { startAt, endAt, type: 'referrer' }).catch(() => [])
+    ]);
+    const v = o => (o && typeof o === 'object' && 'value' in o) ? o.value : (o || 0);
+    const st = stats && stats.pageviews ? stats : { pageviews: stats };
+    $('#kPv').textContent = v(st.pageviews).toLocaleString();
+    $('#kUv').textContent = v(st.visitors || stats.visitors).toLocaleString();
+    $('#kSs').textContent = v(st.sessions || stats.sessions).toLocaleString();
+    $('#kAvg').textContent = fmtTime((st.totaltime && st.totaltime.value || stats.totaltime || 0) / Math.max(1, v(st.sessions || stats.sessions)));
+    drawChart(pv);
+    pageRows = (Array.isArray(urls) ? urls : (urls && urls.urls) || []).map(i => ({ url: i.x, n: i.y })).sort((a, b) => b.n - a.n);
+    renderPages();
+    const rl = Array.isArray(refs) ? refs : [];
+    $('#refs').innerHTML = rl.length
+      ? rl.slice(0, 10).map(i => `<div class="ref"><span>${(i.x || '').replace(/^https?:\/\//, '').slice(0, 60) || '直接访问'}</span><b class="num">${i.y}</b></div>`).join('')
+      : '<div class="tip">这个时间段还没有来源数据</div>';
+  } catch (e) {
+    showCfg('加载数据失败：' + e.message + '。可检查连接信息，或直接使用下方公开只读报表。');
+  }
+}
+
+$('#cfgSave').onclick = async () => {
+  ls.set('umami_base', $('#inBase').value.trim() || 'https://umami.crisxie.top/api');
+  ls.set('umami_user', $('#inUser').value.trim());
+  ls.set('umami_pass', $('#inPass').value);
+  ls.set('umami_site', $('#inSite').value.trim() || SITE_DEFAULT);
+  $('#err').textContent = '连接中…';
+  try {
+    await login();
+    $('#cfg').classList.add('hide');
+    $('#dash').classList.remove('hide');
+    loadAll();
+  } catch (e) {
+    $('#err').textContent = '连接失败：' + e.message + '。请确认账号密码，或 Umami 服务是否在线。';
+  }
+};
+$('#refresh').onclick = loadAll;
+$('#reconfig').onclick = () => showCfg();
+document.querySelectorAll('#rangeBox button').forEach(b => b.onclick = () => { range = b.dataset.v; renderRange(); loadAll(); });
+$('#filter').addEventListener('input', renderPages);
+
+renderRange();
+if (ls.get('umami_pass')) {
+  $('#dash').classList.remove('hide');
+  login().then(loadAll).catch(e => showCfg('自动连接失败：' + e.message + '。请重新填写密码。'));
+} else {
+  showCfg();
+}
 </script>
 </body>
 </html>
