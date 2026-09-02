@@ -198,30 +198,78 @@ function renderForm(conf, obj) {
   else renderLinksiteForm(root, obj, conf.noun);
 }
 
-/* 随笔：大输入框 + 最近条目预览；collect 返回「新条目插到最前」的完整列表 */
+/* 随笔：大输入框 + 图片上传 + 最近条目预览；collect 返回「新条目插到最前」的完整列表 */
 function renderEssayForm(root, list) {
   list = Array.isArray(list) ? list : [];
   root.innerHTML = `
     <div class="card">
       <label class="fl" style="margin-top:0">随笔内容（支持 emoji 和 HTML，换行会合并为空格）</label>
       <textarea id="esText" rows="4" style="width:100%" placeholder="写点什么…"></textarea>
-      <div class="tip"><span id="esCount">0</span> 字 · 发布时自动加时间戳，新随笔排在最前，约 1–2 分钟后出现在「随笔」页</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:8px">
+        <button type="button" class="btn gray small" id="esUpload"><svg class="ic"><use href="#i-imgup"/></svg>上传图片（可多张）</button>
+        <span class="tip" style="margin:0"><span id="esCount">0</span> 字 · 自动加时间戳，新随笔排在最前</span>
+      </div>
+      <div id="esImgs" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"></div>
+      <input type="file" id="esImgInput" accept="image/*" multiple class="hide">
       <div class="sec-label" style="margin-top:14px">最近随笔（只读，改旧内容请切到「YAML 源码」）</div>
       <div id="esRecent"></div>
     </div>`;
   const ta = root.querySelector('#esText');
   const recent = root.querySelector('#esRecent');
+  const imgsEl = root.querySelector('#esImgs');
+  const imgInput = root.querySelector('#esImgInput');
+  const images = [];
+
   (list || []).slice(0, 5).forEach(it => {
     recent.appendChild(el('<div class="ref"><span>' + esc(String(it.content || '')) + '</span><b class="num">' + esc(String(it.date || '')) + '</b></div>'));
   });
   if (!(list || []).length) recent.appendChild(el('<div class="tip">还没有随笔，发第一条吧</div>'));
   ta.addEventListener('input', () => { root.querySelector('#esCount').textContent = ta.value.length; });
+
+  function addThumb(url) {
+    images.push(url);
+    const t = el('<span style="position:relative;display:inline-block"><img src="' + esc(url) + '" alt="" style="width:64px;height:64px;object-fit:cover;border-radius:8px;border:1px solid var(--line)"><button type="button" class="btn small ghost" style="position:absolute;top:-8px;right:-8px;padding:1px 7px;font-size:12px">×</button></span>');
+    t.querySelector('button').onclick = () => {
+      const i = images.indexOf(url);
+      if (i > -1) images.splice(i, 1);
+      t.remove();
+    };
+    imgsEl.appendChild(t);
+  }
+
+  root.querySelector('#esUpload').onclick = () => {
+    imgInput.onchange = async () => {
+      for (const f of [...imgInput.files]) {
+        if (f.size > 8 * 1024 * 1024) { edStatus('图片超过 8MB：' + f.name, true); continue; }
+        const safe = f.name.replace(/[^\w\u4e00-\u9fa5.-]/g, '-');
+        edStatus('上传图片中…');
+        try {
+          const b64 = bufToB64(await f.arrayBuffer());
+          const put = path => putRepoFile(path, b64, '后台上传图片: ' + safe, null, true);
+          let path = 'source/img/uploads/' + safe;
+          try { await put(path); }
+          catch (e) {
+            if (e.code !== 'HTTP') throw e;
+            path = 'source/img/uploads/' + Date.now().toString(36) + '-' + safe;
+            await put(path);
+          }
+          addThumb('/img/uploads/' + path.split('/').pop());
+          edStatus('图片已上传，随随笔一起发布', false);
+        } catch (e) { edStatus('上传失败：' + e.message, true); }
+      }
+      imgInput.value = '';
+    };
+    imgInput.click();
+  };
+
   root.collect = () => {
     const v = ta.value.replace(/\s+/g, ' ').trim();
-    if (!v) return list;
+    if (!v && !images.length) return list;
     const d = new Date(), p2 = n => String(n).padStart(2, '0');
     const stamp = d.getFullYear() + '-' + p2(d.getMonth() + 1) + '-' + p2(d.getDate()) + ' ' + p2(d.getHours()) + ':' + p2(d.getMinutes());
-    return [{ content: v, date: stamp }].concat(list);
+    const entry = { content: v, date: stamp };
+    if (images.length) entry.image = images.slice();
+    return [entry].concat(list);
   };
 }
 
