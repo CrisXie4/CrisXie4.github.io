@@ -237,30 +237,28 @@ function renderEssayForm(root, list) {
     imgsEl.appendChild(t);
   }
 
-  root.querySelector('#esUpload').onclick = () => {
-    imgInput.onchange = async () => {
-      for (const f of [...imgInput.files]) {
-        if (f.size > 8 * 1024 * 1024) { edStatus('图片超过 8MB：' + f.name, true); continue; }
-        const safe = f.name.replace(/[^\w\u4e00-\u9fa5.-]/g, '-');
-        edStatus('上传图片中…');
-        try {
-          const b64 = bufToB64(await f.arrayBuffer());
-          const put = path => putRepoFile(path, b64, '后台上传图片: ' + safe, null, true);
-          let path = 'source/img/uploads/' + safe;
-          try { await put(path); }
-          catch (e) {
-            if (e.code !== 'HTTP') throw e;
-            path = 'source/img/uploads/' + Date.now().toString(36) + '-' + safe;
-            await put(path);
-          }
-          addThumb('/img/uploads/' + path.split('/').pop());
-          edStatus('图片已上传，随随笔一起发布', false);
-        } catch (e) { edStatus('上传失败：' + e.message, true); }
-      }
-      imgInput.value = '';
-    };
-    imgInput.click();
+  imgInput.onchange = async () => {
+    for (const f of [...imgInput.files]) {
+      if (f.size > 8 * 1024 * 1024) { edStatus('图片超过 8MB：' + f.name, true); continue; }
+      const safe = f.name.replace(/[^\w\u4e00-\u9fa5.-]/g, '-');
+      edStatus('上传图片中…');
+      try {
+        const b64 = bufToB64(await f.arrayBuffer());
+        const put = path => putRepoFile(path, b64, '后台上传图片: ' + safe, null, true);
+        let path = 'source/img/uploads/' + safe;
+        try { await put(path); }
+        catch (e) {
+          if (e.code !== 'HTTP') throw e;
+          path = 'source/img/uploads/' + Date.now().toString(36) + '-' + safe;
+          await put(path);
+        }
+        addThumb('/img/uploads/' + path.split('/').pop());
+        edStatus('图片已上传，随随笔一起发布', false);
+      } catch (e) { edStatus('上传失败：' + e.message, true); }
+    }
+    imgInput.value = '';
   };
+  root.querySelector('#esUpload').onclick = () => imgInput.click();
 
   root.collect = () => {
     const v = ta.value.replace(/\s+/g, ' ').trim();
