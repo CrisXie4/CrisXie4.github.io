@@ -15,7 +15,7 @@ const crypto = require('crypto');
 
 const ROOT = path.join(__dirname, '..');
 const OUT = path.join(ROOT, 'source', 'admin', 'secret.js');
-const ITERS = 600000; // PBKDF2-SHA256 迭代次数（OWASP 2023 建议 600k）
+const ITERS = 1000000; // PBKDF2-SHA256 迭代次数（密码偏弱时靠它提高离线破解成本）
 
 const token = (process.env.GH_TOKEN || '').trim();
 if (!token) {
