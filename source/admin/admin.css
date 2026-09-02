@@ -82,6 +82,14 @@ td.actions-cell .btn{margin-right:6px}
 .fgrid{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}
 .fgrid .full{grid-column:1/-1}
 @media(max-width:640px){.fgrid{grid-template-columns:1fr}}
+
+/* 表单模式编辑器 */
+.edtabs{display:flex;gap:6px;align-items:center;margin-bottom:14px;flex-wrap:wrap}
+.edtabs button{border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 16px;font-size:13px;color:var(--muted);cursor:pointer}
+.edtabs button.on{background:var(--red);color:#fff;border-color:var(--red)}
+.subcard{border:1px solid var(--line);border-radius:var(--r-md);padding:12px 14px;margin-bottom:10px;background:#FDFBF9}
+.subcard-head{display:flex;align-items:center;gap:8px;margin-bottom:4px;font-size:13px;color:var(--brown)}
+.subcard-head .spacer{flex:1}
 #preview{background:#fff;border:1px solid var(--line);border-radius:var(--r-md);padding:20px;line-height:1.8;overflow-wrap:break-word}
 #preview h1,#preview h2,#preview h3{margin:.8em 0 .4em}
 #preview p{margin:.5em 0}

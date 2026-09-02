@@ -40,17 +40,17 @@
       <a class="tile" href="#edit=links">
         <span class="badge"><svg class="ic"><use href="#i-link"/></svg></span>
         <span class="t">友情链接</span>
-        <span class="d">links.yml</span>
+        <span class="d">分组卡片式管理</span>
       </a>
       <a class="tile" href="#edit=works">
         <span class="badge"><svg class="ic"><use href="#i-works"/></svg></span>
         <span class="t">作品页</span>
-        <span class="d">works.yml</span>
+        <span class="d">分组卡片式管理</span>
       </a>
       <a class="tile" href="#edit=about">
         <span class="badge"><svg class="ic"><use href="#i-about"/></svg></span>
         <span class="t">关于页</span>
-        <span class="d">about.yml</span>
+        <span class="d">逐模块填写</span>
       </a>
     </div>
 
@@ -67,7 +67,7 @@
     </div>
   </div>
 
-  <!-- 通用文件编辑器（公告表单 / YAML 文本） -->
+  <!-- 通用编辑器（公告表单 / 友链作品关于的表单+源码双模式） -->
   <div id="editor" class="hide">
     <div class="topbar">
       <div>
@@ -80,6 +80,12 @@
       </div>
     </div>
 
+    <div class="edtabs hide" id="edTabs">
+      <button type="button" id="tabForm" class="on">表单填写</button>
+      <button type="button" id="tabSrc">YAML 源码</button>
+      <span class="tip" style="margin:0 0 0 10px">平时用表单即可，源码模式留给精细调整</span>
+    </div>
+
     <div class="card" id="edAnnounceForm" style="display:none">
       <label class="fl" style="margin-top:0">公告开关</label>
       <label style="font-size:14px"><input type="checkbox" id="anEnabled" style="vertical-align:-2px"> 启用公告（关闭后全站隐藏公告条）</label>
@@ -88,6 +94,8 @@
       <label class="fl">跳转链接（可选）</label>
       <input id="anLink" style="width:100%" placeholder="https://…">
     </div>
+
+    <div id="edFormWrap"></div>
 
     <div class="card" id="edTextForm" style="display:none">
       <div class="tip" style="margin:0 0 8px">直接编辑 YAML 源码。格式写错会导致构建失败，改前建议先复制一份备份。</div>
@@ -103,17 +111,18 @@
 
 <script src="/admin/secret.js"></script>
 <script src="/admin/icons.js"></script>
+<script src="/admin/editors.js"></script>
 <script src="/admin/admin.js"></script>
 <script>
 'use strict';
 
 const DATA_FILES = {
-  announce: { path: 'source/announce.json',     label: '全站公告', type: 'json' },
-  links:    { path: 'source/_data/links.yml',   label: '友情链接', type: 'text' },
-  works:    { path: 'source/_data/works.yml',   label: '作品页',   type: 'text' },
-  about:    { path: 'source/_data/about.yml',   label: '关于页',   type: 'text' },
+  announce: { path: 'source/announce.json',   label: '全站公告', type: 'json' },
+  links:    { path: 'source/_data/links.yml', label: '友情链接', type: 'form', form: 'linksite', noun: '友链站点' },
+  works:    { path: 'source/_data/works.yml', label: '作品页',   type: 'form', form: 'linksite', noun: '作品' },
+  about:    { path: 'source/_data/about.yml', label: '关于页',   type: 'form', form: 'about' },
 };
-let edSha = null, edKey = null;
+let edSha = null, edKey = null, edMode = 'form';
 
 initAuth(() => { loadPosts(); route(); });
 window.addEventListener('hashchange', route);
@@ -131,20 +140,34 @@ function closeEditor() {
   $('#app').classList.remove('hide');
 }
 
+function edStatus(msg, isErr) {
+  const el = $('#edStatus');
+  el.textContent = msg;
+  el.className = 'status ' + (isErr ? 'err' : 'ok');
+}
+
 async function openEditor(key) {
   const conf = DATA_FILES[key];
   if (!conf) return;
   edKey = key;
+  edMode = 'form';
   $('#app').classList.add('hide');
   $('#editor').classList.remove('hide');
   $('#edTitle').textContent = conf.label;
   $('#edPath').textContent = conf.path;
   $('#edStatus').textContent = '';
   $('#edStatus').className = 'status';
-  const isJson = conf.type === 'json';
-  $('#edAnnounceForm').style.display = isJson ? '' : 'none';
-  $('#edTextForm').style.display = isJson ? 'none' : '';
   $('#edSave').disabled = true;
+
+  const isJson = conf.type === 'json';
+  const isForm = conf.type === 'form';
+  $('#edAnnounceForm').style.display = isJson ? '' : 'none';
+  $('#edTabs').classList.toggle('hide', !isForm);
+  $('#tabForm').classList.add('on');
+  $('#tabSrc').classList.remove('on');
+  $('#edTextForm').style.display = 'none';
+  $('#edFormWrap').innerHTML = '';
+
   try {
     const { text, sha } = await getRepoFile(conf.path);
     edSha = sha;
@@ -153,15 +176,48 @@ async function openEditor(key) {
       $('#anEnabled').checked = j.enabled !== false;
       $('#anText').value = j.text || '';
       $('#anLink').value = j.link || '';
-    } else {
-      $('#edText').value = text;
+    } else if (isForm) {
+      renderForm(conf, yamlParse(text));
     }
     $('#edSave').disabled = false;
   } catch (e) {
-    $('#edStatus').textContent = '加载失败：' + e.message;
-    $('#edStatus').className = 'status err';
+    edStatus('加载失败：' + e.message, true);
   }
 }
+
+function renderForm(conf, obj) {
+  const root = $('#edFormWrap');
+  if (conf.form === 'about') renderAboutForm(root, obj);
+  else renderLinksiteForm(root, obj, conf.noun);
+}
+
+function formToYaml(conf) {
+  const obj = $('#edFormWrap').collect();
+  return { obj, text: conf.form === 'about' ? buildAboutYaml(obj) : yamlDump(obj) };
+}
+
+function setTab(mode) {
+  const conf = DATA_FILES[edKey];
+  if (!conf || conf.type !== 'form') return;
+  if (mode === 'src') {
+    $('#edText').value = formToYaml(conf).text;
+  } else {
+    try {
+      const obj = yamlParse($('#edText').value);
+      renderForm(conf, obj);
+    } catch (e) {
+      edStatus('源码解析失败：' + e.message + '，已留在源码模式', true);
+      return;
+    }
+  }
+  edMode = mode;
+  $('#tabForm').classList.toggle('on', mode === 'form');
+  $('#tabSrc').classList.toggle('on', mode === 'src');
+  $('#edFormWrap').style.display = mode === 'form' ? '' : 'none';
+  $('#edTextForm').style.display = mode === 'src' ? '' : 'none';
+}
+$('#tabForm').onclick = () => setTab('form');
+$('#tabSrc').onclick = () => setTab('src');
 
 $('#edSave').onclick = async () => {
   if (!edKey) return;
@@ -170,6 +226,10 @@ $('#edSave').onclick = async () => {
   if (conf.type === 'json') {
     text = JSON.stringify({ enabled: $('#anEnabled').checked, text: $('#anText').value.trim(), link: $('#anLink').value.trim() }, null, 2) + '\n';
     try { JSON.parse(text); } catch (e) { return edStatus('内容不是合法 JSON：' + e.message, true); }
+  } else if (conf.type === 'form' && edMode === 'form') {
+    const r = formToYaml(conf);
+    if (!yamlRoundTripOk(r.obj)) return edStatus('自校验未通过（生成的 YAML 无法还原为表单内容），未提交。请检查各输入框内容', true);
+    text = r.text;
   } else {
     text = $('#edText').value;
     if (!text.trim()) return edStatus('内容为空，已取消', true);
@@ -185,11 +245,6 @@ $('#edSave').onclick = async () => {
   }
   $('#edSave').disabled = false;
 };
-function edStatus(msg, isErr) {
-  const el = $('#edStatus');
-  el.textContent = msg;
-  el.className = 'status ' + (isErr ? 'err' : 'ok');
-}
 
 /* ---------- 文章列表 ---------- */
 async function loadPosts() {
