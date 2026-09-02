@@ -52,7 +52,7 @@ bash note.sh --dry 随笔内容    # 预览模式，只看不发
 
 ## 网页后台
 
-`/admin/`（自建轻量后台，GitHub 令牌登录，直连 GitHub API）可管理：
+`/admin/`（自建轻量后台，**密码登录**，直连 GitHub API）可管理：
 
 - **写文章**：`/write/` 在线 Markdown 编辑器，新建 / 编辑文章、上传图片、实时预览，保存即自动构建上线
 - **全站公告**：`source/announce.json`（表单编辑）
@@ -61,6 +61,14 @@ bash note.sh --dry 随笔内容    # 预览模式，只看不发
 - **关于页**：`source/_data/about.yml`（YAML 源码编辑）
 - **数据看板**：`/admin/stats.html` 访问统计
 
-令牌只存在本机浏览器 localStorage；创建地址 github.com/settings/personal-access-tokens/new，勾选本仓库 Contents 读写即可。
+登录原理：GitHub 令牌经 AES-256-GCM 加密内置在 `source/admin/secret.js`（仓库里只有密文），输入正确密码现场解密使用；令牌明文不进仓库。**改密码 / 换令牌**（Git Bash）：
+
+```bash
+GH_TOKEN=$(git credential fill <<< $'protocol=https\nhost=github.com\n' | sed -n 's/^password=//p') \
+ADMIN_PASS='新密码' node tools/make-admin-vault.js   # 不传 ADMIN_PASS 会自动生成强密码
+git add source/admin/secret.js && git commit -m "重置后台密码" && git push
+```
+
+⚠️ `secret.js` 在公开仓库里，密码就是唯一的门锁：**请用 12 位以上混合字符**，别用弱密码。也可以在登录页改用 GitHub 令牌直接登录。
 
 随笔请用 `note.sh`（brevity.yml 是根级列表格式，后台不管理）。站点核心配置 `_config*.yml` 刻意不进后台——改错会直接导致构建失败。
