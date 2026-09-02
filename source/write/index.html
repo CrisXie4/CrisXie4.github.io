@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>写文章 | 六哥</title>
+<link rel="icon" href="/img/avatar-256.png">
+<link rel="stylesheet" href="/admin/admin.css">
+</head>
+<body>
+<div class="wrap">
+  <div id="login"></div>
+
+  <div id="app" class="hide">
+    <div class="topbar">
+      <div>
+        <h1 id="pageTitle">✍️ 写文章</h1>
+        <div class="sub">保存后自动提交到仓库并构建上线，无需本地环境</div>
+      </div>
+      <div class="actions">
+        <a class="btn gray" href="/admin/">← 返回后台</a>
+        <button class="btn gray" onclick="logout()">退出</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="fgrid">
+        <div class="full">
+          <label class="fl" style="margin-top:0">标题 *</label>
+          <input id="fTitle" style="width:100%" placeholder="文章标题">
+        </div>
+        <div>
+          <label class="fl">发布时间</label>
+          <input id="fDate" type="datetime-local" style="width:100%">
+        </div>
+        <div>
+          <label class="fl">链接别名 slug（决定文章网址，留空自动生成；仅限中英文、数字、-）</label>
+          <input id="fSlug" style="width:100%" placeholder="留空则根据标题自动生成">
+        </div>
+        <div>
+          <label class="fl">标签（逗号分隔）</label>
+          <input id="fTags" style="width:100%" placeholder="随笔, 生活">
+        </div>
+        <div>
+          <label class="fl">分类（逗号分隔，一般留空）</label>
+          <input id="fCats" style="width:100%" placeholder="">
+        </div>
+        <div class="full">
+          <label class="fl">封面图地址（可选）</label>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <input id="fCover" style="flex:1;min-width:200px" placeholder="/img/uploads/xxx.png">
+            <button class="btn gray" type="button" onclick="pickImage('cover')">上传图片设为封面</button>
+          </div>
+        </div>
+        <div class="full">
+          <label class="fl">摘要（可选，随笔模式显示此内容）</label>
+          <textarea id="fDesc" rows="2" style="width:100%"></textarea>
+        </div>
+        <div class="full">
+          <label style="font-size:14px"><input type="checkbox" id="fBrevity" style="vertical-align:-2px"> 显示为随笔（首页顶部横幅展示）</label>
+        </div>
+        <div class="full">
+          <label class="fl">正文（Markdown）</label>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
+            <button class="btn gray" type="button" onclick="pickImage('body')">🖼️ 上传图片插入正文</button>
+            <button class="btn ghost" type="button" id="previewBtn" onclick="togglePreview()">👁 预览</button>
+          </div>
+          <textarea id="writeBody" rows="20" placeholder="在这里写正文，支持 Markdown…" spellcheck="false"></textarea>
+        </div>
+        <div class="full hide" id="previewWrap">
+          <label class="fl">预览</label>
+          <div id="preview"></div>
+        </div>
+      </div>
+      <div class="row" style="margin-top:16px">
+        <button class="btn" id="publishBtn" onclick="publish()">🚀 发布</button>
+        <span class="status" id="status"></span>
+      </div>
+      <div class="tip" id="modeTip"></div>
+    </div>
+
+    <input type="file" id="imgInput" accept="image/*" class="hide">
+  </div>
+</div>
+
+<script src="/admin/vendor/md-preview.js"></script>
+<script src="/admin/admin.js"></script>
+<script>
+'use strict';
+
+const params = new URLSearchParams(location.search);
+const editFile = params.get('file') || '';
+let editSha = null;
+let uploadTarget = 'cover';
+
+initAuth(async () => {
+  $('#fDate').value = nowLocalMin();
+  if (editFile) {
+    $('#pageTitle').textContent = '✏️ 编辑文章';
+    $('#publishBtn').textContent = '💾 保存修改';
+    $('#fSlug').disabled = true;
+    $('#modeTip').textContent = '编辑模式：' + editFile + '（不能修改文件名，否则原网址会失效）';
+    try {
+      const { text, sha } = await getRepoFile(editFile);
+      editSha = sha;
+      const { attrs, body } = parseFrontMatter(text);
+      $('#fTitle').value = Array.isArray(attrs.title) ? '' : (attrs.title || '');
+      $('#fDate').value = String(attrs.date || '').replace(' ', 'T').slice(0, 16) || nowLocalMin();
+      $('#fTags').value = Array.isArray(attrs.tags) ? attrs.tags.join(', ') : '';
+      $('#fCats').value = Array.isArray(attrs.categories) ? attrs.categories.join(', ') : '';
+      $('#fCover').value = Array.isArray(attrs.cover) ? '' : (attrs.cover || '');
+      $('#fDesc').value = Array.isArray(attrs.description) ? '' : (attrs.description || '');
+      $('#fBrevity').checked = attrs.brevity === true || attrs.brevity === 'true';
+      $('#writeBody').value = body;
+    } catch (e) {
+      status('加载文章失败：' + e.message, true);
+    }
+  } else {
+    $('#modeTip').textContent = '新文章网址格式：/年/月/日/别名/，发布后可在后台列表里点「编辑」继续修改';
+  }
+});
+
+function status(msg, isErr) {
+  const el = $('#status');
+  el.textContent = msg;
+  el.className = 'status ' + (isErr ? 'err' : 'ok');
+}
+
+/* ---------- 发布 ---------- */
+async function publish() {
+  const title = $('#fTitle').value.trim();
+  const body = $('#writeBody').value;
+  if (!title) return status('请填写标题', true);
+  if (!body.trim()) return status('正文不能为空', true);
+  const dateVal = ($('#fDate').value || nowLocalMin());
+  const attrs = {
+    title,
+    date: dateVal.length === 16 ? dateVal + ':00' : dateVal.replace(' ', 'T'),
+    tags: splitList($('#fTags').value),
+    categories: splitList($('#fCats').value),
+    cover: $('#fCover').value.trim(),
+    description: $('#fDesc').value.trim(),
+    brevity: $('#fBrevity').checked,
+  };
+  const text = buildPostText(attrs, body);
+  const btn = $('#publishBtn');
+  btn.disabled = true;
+  status('提交中…');
+  try {
+    if (editFile) {
+      await putRepoFile(editFile, text, '后台修改文章: ' + title, editSha);
+      status('✅ 已保存！正在自动构建，约 1-2 分钟后生效', false);
+    } else {
+      const slug = ($('#fSlug').value.trim() && slugify($('#fSlug').value)) || slugify(title);
+      const path = 'source/_posts/' + dateVal.slice(0, 10) + '-' + slug + '.md';
+      let existing = null;
+      try { existing = await getRepoFile(path); } catch (e) { if (e.code !== 'NOT_FOUND') throw e; }
+      if (existing) {
+        status('同名文件已存在：' + path + '（去后台列表里编辑它，或换个标题/别名）', true);
+        btn.disabled = false;
+        return;
+      }
+      await putRepoFile(path, text, '后台发布文章: ' + title);
+      status('✅ 已发布！文件 ' + path + ' 正在构建，约 1-2 分钟后上线', false);
+    }
+  } catch (e) {
+    status('发布失败：' + e.message, true);
+  }
+  btn.disabled = false;
+}
+
+/* ---------- 预览 ---------- */
+function togglePreview() {
+  const wrap = $('#previewWrap');
+  const show = wrap.classList.contains('hide');
+  wrap.classList.toggle('hide', !show);
+  $('#previewBtn').textContent = show ? '📝 返回编辑' : '👁 预览';
+  if (show) {
+    try { $('#preview').innerHTML = mdRender($('#writeBody').value || '(空)'); }
+    catch (e) { $('#preview').textContent = '预览组件加载失败，不影响发布'; }
+  }
+}
+
+/* ---------- 图片上传 ---------- */
+function pickImage(target) {
+  uploadTarget = target;
+  $('#imgInput').onchange = async () => {
+    const f = $('#imgInput').files[0];
+    $('#imgInput').value = '';
+    if (!f) return;
+    if (f.size > 8 * 1024 * 1024) return status('图片太大（超过 8MB），先压缩一下再传', true);
+    const safe = f.name.replace(/[^\w\u4e00-\u9fa5.-]/g, '-');
+    const b64 = bufToB64(await f.arrayBuffer());
+    status('上传图片中…');
+    const put = (path) => putRepoFile(path, b64, '后台上传图片: ' + safe, null, true);
+    let path = 'source/img/uploads/' + safe;
+    try {
+      try { await put(path); }
+      catch (e) {
+        if (e.code !== 'HTTP') throw e;
+        path = 'source/img/uploads/' + Date.now().toString(36) + '-' + safe;
+        await put(path);
+      }
+      const url = '/img/uploads/' + path.split('/').pop();
+      if (uploadTarget === 'cover') {
+        $('#fCover').value = url;
+        status('✅ 封面已上传：' + url, false);
+      } else {
+        insertAtCursor('\n![' + safe.replace(/\.[a-z]+$/i, '') + '](' + url + ')\n');
+        status('✅ 图片已上传并插入正文', false);
+      }
+    } catch (e) {
+      status('上传失败：' + e.message, true);
+    }
+  };
+  $('#imgInput').click();
+}
+
+function insertAtCursor(text) {
+  const ta = $('#writeBody');
+  const s = ta.selectionStart ?? ta.value.length, e = ta.selectionEnd ?? s;
+  ta.value = ta.value.slice(0, s) + text + ta.value.slice(e);
+  ta.selectionStart = ta.selectionEnd = s + text.length;
+  ta.focus();
+}
+</script>
+</body>
+</html>

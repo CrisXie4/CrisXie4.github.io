@@ -52,10 +52,15 @@ bash note.sh --dry 随笔内容    # 预览模式，只看不发
 
 ## 网页后台
 
-`/admin/`（Sveltia CMS，GitHub 令牌登录）可管理：
+`/admin/`（自建轻量后台，GitHub 令牌登录，直连 GitHub API）可管理：
 
-- **文章**：新建、编辑、删除，上传封面图
-- **友情链接**：`source/_data/links.yml` 的分组与站点
-- **关于页**：`source/_data/about.yml` 的介绍、技能、座右铭等
+- **写文章**：`/write/` 在线 Markdown 编辑器，新建 / 编辑文章、上传图片、实时预览，保存即自动构建上线
+- **全站公告**：`source/announce.json`（表单编辑）
+- **友情链接**：`source/_data/links.yml`（YAML 源码编辑）
+- **作品页**：`source/_data/works.yml`（YAML 源码编辑）
+- **关于页**：`source/_data/about.yml`（YAML 源码编辑）
+- **数据看板**：`/admin/stats.html` 访问统计
 
-随笔请用 `note.sh`（brevity.yml 是根级列表格式，CMS 不支持）。站点核心配置 `_config*.yml` 刻意不进后台——改错会直接导致构建失败。
+令牌只存在本机浏览器 localStorage；创建地址 github.com/settings/personal-access-tokens/new，勾选本仓库 Contents 读写即可。
+
+随笔请用 `note.sh`（brevity.yml 是根级列表格式，后台不管理）。站点核心配置 `_config*.yml` 刻意不进后台——改错会直接导致构建失败。

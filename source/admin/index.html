@@ -1,14 +1,215 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="robots" content="noindex" />
-  <title>博客后台 | 六哥</title>
-  <link rel="icon" href="/img/avatar-256.png" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>博客后台 | 六哥</title>
+<link rel="icon" href="/img/avatar-256.png">
+<link rel="stylesheet" href="/admin/admin.css">
 </head>
 <body>
-  <!-- Sveltia CMS：GitHub 仓库后台（支持个人访问令牌 PAT 登录，无需额外服务器） -->
-  <script src="https://cdn.jsdelivr.net/npm/@sveltia/cms/dist/sveltia-cms.js" type="module"></script>
+<div class="wrap">
+  <div id="login"></div>
+
+  <div id="app" class="hide">
+    <div class="topbar">
+      <div>
+        <h1>🛠️ 博客后台</h1>
+        <div class="sub">直连 GitHub 仓库，保存后约 1-2 分钟自动上线（GitHub Pages + 服务器同步更新）</div>
+      </div>
+      <div class="actions">
+        <a class="btn ghost" href="/admin/stats.html">📊 数据看板</a>
+        <button class="btn gray" onclick="logout()">退出</button>
+      </div>
+    </div>
+
+    <div class="tiles">
+      <a class="tile primary" href="/write/">
+        <div class="ico">✍️</div><div class="t">写文章</div><div class="d">新建 / 发布</div>
+      </a>
+      <a class="tile" href="#edit=announce">
+        <div class="ico">📣</div><div class="t">全站公告</div><div class="d">底部公告条</div>
+      </a>
+      <a class="tile" href="#edit=links">
+        <div class="ico">🤝</div><div class="t">友情链接</div><div class="d">links.yml</div>
+      </a>
+      <a class="tile" href="#edit=works">
+        <div class="ico">🎨</div><div class="t">作品页</div><div class="d">works.yml</div>
+      </a>
+      <a class="tile" href="#edit=about">
+        <div class="ico">🙋</div><div class="t">关于页</div><div class="d">about.yml</div>
+      </a>
+      <a class="tile" href="/admin/stats.html">
+        <div class="ico">📈</div><div class="t">数据看板</div><div class="d">访问统计</div>
+      </a>
+    </div>
+
+    <div class="card" id="postsCard">
+      <h2>📄 文章管理</h2>
+      <div id="postsStatus" class="tip">加载中…</div>
+      <div style="overflow-x:auto">
+      <table>
+        <thead><tr><th>标题</th><th style="width:130px">发布时间</th><th style="width:230px">文件</th><th style="width:150px">操作</th></tr></thead>
+        <tbody id="postsBody"></tbody>
+      </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- 通用文件编辑器（公告表单 / YAML 文本） -->
+  <div id="editor" class="hide">
+    <div class="topbar">
+      <div>
+        <h1 id="edTitle">编辑</h1>
+        <div class="sub mono" id="edPath"></div>
+      </div>
+      <div class="actions">
+        <button class="btn gray" onclick="closeEditor()">← 返回后台</button>
+      </div>
+    </div>
+
+    <div class="card" id="edAnnounceForm" style="display:none">
+      <label class="fl" style="margin-top:0">公告开关</label>
+      <label style="font-size:14px"><input type="checkbox" id="anEnabled" style="vertical-align:-2px"> 启用公告（关闭后全站隐藏公告条）</label>
+      <label class="fl">公告内容（支持 HTML）</label>
+      <input id="anText" style="width:100%" placeholder="🎉欢迎各位进入六哥的博客！">
+      <label class="fl">跳转链接（可选）</label>
+      <input id="anLink" style="width:100%" placeholder="https://…">
+    </div>
+
+    <div class="card" id="edTextForm" style="display:none">
+      <div class="tip" style="margin:0 0 8px">直接编辑 YAML 源码，保存后自动提交。格式写错会导致构建失败，改前建议先复制一份备份。</div>
+      <textarea id="edText" class="file" rows="24" spellcheck="false"></textarea>
+    </div>
+
+    <div class="row">
+      <button class="btn" id="edSave">💾 保存并发布</button>
+      <span class="status" id="edStatus"></span>
+    </div>
+  </div>
+</div>
+
+<script src="/admin/admin.js"></script>
+<script>
+'use strict';
+
+const DATA_FILES = {
+  announce: { path: 'source/announce.json',     label: '📣 全站公告', type: 'json' },
+  links:    { path: 'source/_data/links.yml',   label: '🤝 友情链接', type: 'text' },
+  works:    { path: 'source/_data/works.yml',   label: '🎨 作品页',   type: 'text' },
+  about:    { path: 'source/_data/about.yml',   label: '🙋 关于页',   type: 'text' },
+};
+let edSha = null, edKey = null;
+
+initAuth(() => { loadPosts(); route(); });
+window.addEventListener('hashchange', route);
+
+function route() {
+  const m = location.hash.match(/#edit=(\w+)/);
+  if (m && DATA_FILES[m[1]]) openEditor(m[1]);
+  else closeEditor();
+}
+
+function closeEditor() {
+  edKey = null;
+  location.hash = '';
+  $('#editor').classList.add('hide');
+  $('#app').classList.remove('hide');
+}
+
+async function openEditor(key) {
+  const conf = DATA_FILES[key];
+  if (!conf) return;
+  edKey = key;
+  $('#app').classList.add('hide');
+  $('#editor').classList.remove('hide');
+  $('#edTitle').textContent = conf.label;
+  $('#edPath').textContent = conf.path;
+  $('#edStatus').textContent = '';
+  $('#edStatus').className = 'status';
+  const isJson = conf.type === 'json';
+  $('#edAnnounceForm').style.display = isJson ? '' : 'none';
+  $('#edTextForm').style.display = isJson ? 'none' : '';
+  $('#edSave').disabled = true;
+  try {
+    const { text, sha } = await getRepoFile(conf.path);
+    edSha = sha;
+    if (isJson) {
+      const j = JSON.parse(text);
+      $('#anEnabled').checked = j.enabled !== false;
+      $('#anText').value = j.text || '';
+      $('#anLink').value = j.link || '';
+    } else {
+      $('#edText').value = text;
+    }
+    $('#edSave').disabled = false;
+  } catch (e) {
+    $('#edStatus').textContent = '加载失败：' + e.message;
+    $('#edStatus').className = 'status err';
+  }
+}
+
+$('#edSave').onclick = async () => {
+  if (!edKey) return;
+  const conf = DATA_FILES[edKey];
+  let text;
+  if (conf.type === 'json') {
+    text = JSON.stringify({ enabled: $('#anEnabled').checked, text: $('#anText').value.trim(), link: $('#anLink').value.trim() }, null, 2) + '\n';
+    try { JSON.parse(text); } catch (e) { return edStatus('内容不是合法 JSON：' + e.message, true); }
+  } else {
+    text = $('#edText').value;
+    if (!text.trim()) return edStatus('内容为空，已取消', true);
+  }
+  $('#edSave').disabled = true;
+  edStatus('提交中…');
+  try {
+    const j = await putRepoFile(conf.path, text, '后台修改: ' + conf.label.replace(/^\S+\s/, '') + '（' + conf.path + '）', edSha);
+    edSha = j.content.sha;
+    edStatus('✅ 已保存！正在自动构建，约 1-2 分钟后上线', false);
+  } catch (e) {
+    edStatus('保存失败：' + e.message + (e.code === 'HTTP' ? '（可能别人也改过此文件，点“返回后台”重新进入再试）' : ''), true);
+  }
+  $('#edSave').disabled = false;
+};
+function edStatus(msg, isErr) {
+  const el = $('#edStatus');
+  el.textContent = msg;
+  el.className = 'status ' + (isErr ? 'err' : 'ok');
+}
+
+/* ---------- 文章列表 ---------- */
+async function loadPosts() {
+  const st = $('#postsStatus'), body = $('#postsBody');
+  try {
+    const tree = await listTree();
+    const files = tree.filter(t => t.type === 'blob' && /^source\/_posts\/.+\.md$/.test(t.path)).map(t => t.path);
+    if (!files.length) { st.textContent = '还没有文章，点上面「写文章」发布第一篇吧'; return; }
+    const posts = (await pool(files, async p => {
+      try {
+        const { text } = await getRepoFile(p);
+        const { attrs } = parseFrontMatter(text);
+        return { path: p, title: attrs.title || p, date: String(attrs.date || '') };
+      } catch (e) { return { path: p, title: '(读取失败)', date: '' }; }
+    })).sort((a, b) => b.date.localeCompare(a.date));
+    st.textContent = '';
+    body.innerHTML = posts.map(p => {
+      const url = postUrl(p.path);
+      return `<tr>
+        <td><div class="title">${esc(p.title)}</div></td>
+        <td>${esc(p.date.replace('T', ' ').slice(0, 16))}</td>
+        <td><div class="url mono">${esc(p.path.split('/').pop())}</div></td>
+        <td>
+          <a class="btn small" href="/write/?file=${encodeURIComponent(p.path)}">编辑</a>
+          ${url ? `<a class="btn small gray" href="${esc(url)}" target="_blank">查看</a>` : ''}
+        </td>
+      </tr>`;
+    }).join('');
+  } catch (e) {
+    st.textContent = '加载失败：' + e.message;
+    st.style.color = 'var(--red)';
+  }
+}
+</script>
 </body>
 </html>
