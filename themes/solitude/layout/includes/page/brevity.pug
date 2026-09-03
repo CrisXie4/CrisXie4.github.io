@@ -19,7 +19,7 @@ if theme.brevity.enable
                                         a.bber-reply.goComment(href=url_for(item.commentLink))
                                             i.solitude.fas.fa-comment
                                     else
-                                        a.bber-reply.goComment(onclick=`sco.toTalk('${item.content}')`)
+                                        a.bber-reply.goComment(data-bid='随笔 ' + item.date)
                                             i.solitude.fas.fa-comment
 
                         #bber-content
@@ -68,8 +68,11 @@ if theme.brevity.enable
                                         a.bber-reply(href=url_for(item.commentLink))
                                             i.solitude.fas.fa-comment
                                     else
-                                        a.bber-reply(onclick=`sco.toTalk('${item.content}')`)
+                                        a.bber-reply(data-bid='随笔 ' + item.date)
                                             i.solitude.fas.fa-comment
+
+                        if theme.comment.use
+                            .bber-per-comments(hidden)
 
         // Essay 页：轻量绑定 lightbox + 节流刷新瀑布流，减少多次重绑
         script.
@@ -116,6 +119,67 @@ if theme.brevity.enable
                 var mo = new MutationObserver(run);
                 mo.observe($bber, { childList: true, subtree: true });
               }
+            })();
+
+        // 每条随笔的独立评论区（giscus specific 映射，term = 随笔时间戳）
+        style.
+            .bber-per-comments { margin-top: 10px; padding: 12px; background: var(--efu-card-bg, #fff); border: 1px solid var(--efu-line-color, #e3e8f0); border-radius: 12px; }
+            .bber-per-comments[hidden] { display: none; }
+            .bber-reply[data-bid] { cursor: pointer; }
+        script.
+            (function(){
+                var ORIGIN = 'https://giscus.app';
+                var $bber = document.getElementById('bber');
+                if (!$bber) return;
+                function currentTheme(){
+                    return document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+                }
+                function loadPanel(panel, bid){
+                    var s = document.createElement('script');
+                    s.src = 'https://giscus.app/client.js';
+                    s.setAttribute('data-repo', '!{theme.giscus.repo}');
+                    s.setAttribute('data-repo-id', '!{theme.giscus.repo_id}');
+                    s.setAttribute('data-category-id', '!{theme.giscus.category_id}');
+                    s.setAttribute('data-mapping', 'specific');
+                    s.setAttribute('data-term', bid);
+                    s.setAttribute('data-theme', currentTheme());
+                    s.setAttribute('data-reactions-enabled', '1');
+                    s.setAttribute('data-strict', '0');
+                    s.setAttribute('data-lang', '!{(theme.giscus.option && theme.giscus.option["data-lang"]) || "zh-CN"}');
+                    s.setAttribute('crossorigin', 'anonymous');
+                    s.async = true;
+                    panel.appendChild(s);
+                }
+                $bber.addEventListener('click', function(e){
+                    var btn = e.target.closest('.bber-reply[data-bid]');
+                    if (!btn) return;
+                    e.preventDefault();
+                    var li = btn.closest('li.item');
+                    var panel = li && li.querySelector('.bber-per-comments');
+                    if (!panel) return;
+                    var opening = panel.hasAttribute('hidden');
+                    $bber.querySelectorAll('.bber-per-comments:not([hidden])').forEach(function(p){
+                        if (p !== panel) p.setAttribute('hidden', '');
+                    });
+                    if (opening) {
+                        panel.removeAttribute('hidden');
+                        if (!panel.dataset.loaded) {
+                            loadPanel(panel, btn.dataset.bid);
+                            panel.dataset.loaded = '1';
+                        }
+                        setTimeout(function(){ panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }, 60);
+                    } else {
+                        panel.setAttribute('hidden', '');
+                    }
+                });
+                if ('MutationObserver' in window) {
+                    new MutationObserver(function(){
+                        var t = currentTheme();
+                        document.querySelectorAll('iframe.giscus-frame').forEach(function(f){
+                            try { f.contentWindow.postMessage({ giscus: { setConfig: { theme: t } } }, ORIGIN); } catch (err) {}
+                        });
+                    }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+                }
             })();
             #bber-tips
                 if theme.brevity.strip === -1
