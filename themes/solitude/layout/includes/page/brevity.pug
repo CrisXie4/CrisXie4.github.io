@@ -181,8 +181,8 @@ if theme.brevity.enable
                     }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
                 }
             })();
-            #bber-tips
-                if theme.brevity.strip === -1
-                    = _p('essay.tip0')
-                else
-                    = _p('essay.tip1').replace('#{count}', theme.brevity.strip)
+        #bber-tips
+            if theme.brevity.strip === -1
+                = _p('essay.tip0')
+            else
+                = _p('essay.tip1').replace('#{count}', theme.brevity.strip)
