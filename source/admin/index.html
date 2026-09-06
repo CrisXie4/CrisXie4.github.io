@@ -52,6 +52,11 @@
         <span class="t">作品页</span>
         <span class="d">分组卡片式管理</span>
       </a>
+      <a class="tile" href="#edit=aff">
+        <span class="badge"><svg class="ic"><use href="#i-bag"/></svg></span>
+        <span class="t">自用好物</span>
+        <span class="d">aff 推荐位管理</span>
+      </a>
       <a class="tile" href="#edit=about">
         <span class="badge"><svg class="ic"><use href="#i-about"/></svg></span>
         <span class="t">关于页</span>
@@ -116,6 +121,7 @@
 
 <script src="/admin/secret.js?v=20260902"></script>
 <script src="/admin/icons.js?v=20260902"></script>
+<script src="/admin/icons-extra.js"></script>
 <script src="/admin/editors2.js?v=20260902"></script>
 <script src="/admin/admin.js?v=20260902"></script>
 <script>
@@ -126,6 +132,7 @@ const DATA_FILES = {
   essay:    { path: 'source/_data/brevity.yml',   label: '发随笔',   type: 'form', form: 'essay' },
   links:    { path: 'source/_data/links.yml',     label: '友情链接', type: 'form', form: 'linksite', noun: '友链站点' },
   works:    { path: 'source/_data/works.yml',     label: '作品页',   type: 'form', form: 'linksite', noun: '作品' },
+  aff:      { path: 'source/_data/aff.yml',       label: '自用好物', type: 'form', form: 'aff' },
   about:    { path: 'source/_data/about.yml',     label: '关于页',   type: 'form', form: 'about' },
 };
 let edSha = null, edKey = null, edMode = 'form';
@@ -195,7 +202,63 @@ function renderForm(conf, obj) {
   const root = $('#edFormWrap');
   if (conf.form === 'about') renderAboutForm(root, obj);
   else if (conf.form === 'essay') renderEssayForm(root, obj);
+  else if (conf.form === 'aff') renderAffForm(root, obj);
   else renderLinksiteForm(root, obj, conf.noun);
+}
+
+/* 自用好物：/aff/ 页推荐位（名字 + aff 链接 + 图标可选 + 几句话介绍），顶层列表 */
+function renderAffForm(root, list) {
+  list = Array.isArray(list) ? list : [];
+  root.innerHTML = `
+    <div class="card">
+      <div class="tip" style="margin:0 0 10px">前台展示在 /aff/ 页。链接填推广（aff）链接；图标可不填，前台会显示名字首字。</div>
+      <div id="affList"></div>
+      <button type="button" class="btn" id="affAdd" style="margin-top:12px">＋ 添加推荐</button>
+    </div>`;
+  const listEl = root.querySelector('#affList');
+
+  function row(item) {
+    const box = el(`<div class="subcard">
+      <div class="subcard-head"><b>推荐</b>
+        <span class="spacer"></span>
+        <button type="button" class="btn small gray" data-act="up">上移</button>
+        <button type="button" class="btn small gray" data-act="down">下移</button>
+        <button type="button" class="btn small ghost" data-act="del">删除</button>
+      </div>
+      <div class="fgrid">
+        <div><label class="fl">名字</label><input value="${esc(item.name || '')}" style="width:100%"></div>
+        <div><label class="fl">aff 链接</label><input value="${esc(item.link || '')}" placeholder="https://…" style="width:100%"></div>
+        <div><label class="fl">图标（可选）</label><input value="${esc(item.icon || '')}" placeholder="https://…/logo.svg" style="width:100%"></div>
+        <div><label class="fl">几句话介绍</label><textarea rows="2" style="width:100%">${esc(item.descr || '')}</textarea></div>
+      </div></div>`);
+    const ins = box.querySelectorAll('input,textarea');
+    const read = () => ({
+      name: ins[0].value.trim(),
+      link: ins[1].value.trim(),
+      icon: ins[2].value.trim(),
+      descr: ins[3].value.replace(/\s+/g, ' ').trim()
+    });
+    const sync = () => { box.dataset.item = JSON.stringify(read()); };
+    sync();
+    box.addEventListener('input', sync);
+    box.addEventListener('click', e => {
+      const act = e.target.closest('button')?.dataset.act;
+      if (!act) return;
+      const kids = [...listEl.children];
+      const i = kids.indexOf(box);
+      if (act === 'del') box.remove();
+      if (act === 'up' && i > 0) listEl.insertBefore(box, kids[i - 1]);
+      if (act === 'down' && i < kids.length - 1) listEl.insertBefore(kids[i + 1], box);
+      if (act !== 'del') sync();
+    });
+    return box;
+  }
+
+  const addRow = v => listEl.appendChild(row(v || { name: '', link: '', icon: '', descr: '' }));
+  list.forEach(addRow);
+  root.querySelector('#affAdd').onclick = () => addRow();
+
+  root.collect = () => [...listEl.children].map(b => JSON.parse(b.dataset.item)).filter(o => o.name || o.link || o.icon || o.descr);
 }
 
 /* 随笔：大输入框 + 图片上传 + 最近条目预览；collect 返回「新条目插到最前」的完整列表 */
@@ -273,6 +336,8 @@ function renderEssayForm(root, list) {
 
 function formToYaml(conf) {
   const obj = $('#edFormWrap').collect();
+  /* 空列表特判：yamlDump([]) 是空串且 parser 把 [] 读成 {}，roundtrip 会误拒 */
+  if (Array.isArray(obj) && !obj.length) return { obj: { __empty: true }, text: '[]\n' };
   return { obj, text: conf.form === 'about' ? buildAboutYaml(obj) : yamlDump(obj) };
 }
 
@@ -308,7 +373,7 @@ $('#edSave').onclick = async () => {
     try { JSON.parse(text); } catch (e) { return edStatus('内容不是合法 JSON：' + e.message, true); }
   } else if (conf.type === 'form' && edMode === 'form') {
     const r = formToYaml(conf);
-    if (!yamlRoundTripOk(r.obj)) return edStatus('自校验未通过（生成的 YAML 无法还原为表单内容），未提交。请检查各输入框内容', true);
+    if (r.obj.__empty !== true && !yamlRoundTripOk(r.obj)) return edStatus('自校验未通过（生成的 YAML 无法还原为表单内容），未提交。请检查各输入框内容', true);
     text = r.text;
     if (conf.form === 'essay') {
       const v = $('#esText') ? $('#esText').value.replace(/\s+/g, ' ').trim() : '';
