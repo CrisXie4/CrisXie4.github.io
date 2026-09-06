@@ -1,1 +1,4 @@
-[]
+- name: E2E测试推荐
+  link: https://example.com/e2e
+  icon:
+  descr: 后台 E2E 临时条目, 稍后会自动删除
