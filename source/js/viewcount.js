@@ -1,12 +1,10 @@
 // 阅读量：唯一访客计数（同一浏览器对同一文章只计一次），数字来自本站计数服务
+// pjax 站内跳转不重载页面，监听 pjax:complete 按新路径重新计数
 (function () {
-  var P = location.pathname;
   function get(k) { try { return localStorage.getItem(k) } catch (e) { return null } }
   function set(k, v) { try { localStorage.setItem(k, v) } catch (e) { } }
   var vid = get('uvid');
   if (!vid) { vid = 'v' + Math.random().toString(36).slice(2) + Date.now().toString(36); set('uvid', vid); }
-  var KEY = 'vview:' + P;
-  var counted = get(KEY) === '1';
 
   function setPage(n) { var e = document.getElementById('busuanzi_value_page_pv'); if (e) e.textContent = n; }
   function fillSite() {
@@ -17,14 +15,16 @@
       var cu = document.getElementById('busuanzi_container_site_uv'); if (cu) cu.style.display = 'inline';
     }).catch(function () { });
   }
-  function refresh() {
+  function refresh(P) {
     fetch('/blog-stat/count?p=' + encodeURIComponent(P)).then(function (r) { return r.json() }).then(function (d) { setPage(d.views) }).catch(function () { });
   }
 
   function run() {
-    refresh();
+    var P = location.pathname;
+    refresh(P);
     fillSite();
-    if (counted) return;
+    var KEY = 'vview:' + P;
+    if (get(KEY) === '1') return;
     set(KEY, '1');
     fetch('/blog-stat/track?p=' + encodeURIComponent(P) + '&k=' + encodeURIComponent(vid))
       .then(function (r) { return r.json() })
@@ -34,4 +34,5 @@
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run);
   else run();
+  document.addEventListener('pjax:complete', function () { setTimeout(run, 0); });
 })();

@@ -32,3 +32,6 @@ if hexo-config('comment.use')
 
 // components
 @import '_components/index'
+
+// 动效基座：必须在最后导入，靠顺序覆盖前文的过渡/入场定义
+@import 'motion.styl'

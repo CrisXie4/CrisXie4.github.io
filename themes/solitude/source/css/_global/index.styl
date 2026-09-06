@@ -152,7 +152,8 @@ hr
 a
   color var(--efu-fontcolor)
   text-decoration none
-  transition all .3s ease 0s
+  // 只过渡视觉属性：transition:all 会把布局变化也动画化，是卡顿感的来源
+  transition color .3s var(--sco-ease-out), background-color .3s var(--sco-ease-out), border-color .3s var(--sco-ease-out), opacity .3s var(--sco-ease-out), transform .3s var(--sco-ease-out), box-shadow .3s var(--sco-ease-out)
   overflow-wrap break-word
   -webkit-user-drag none
 
@@ -294,7 +295,7 @@ button
 img
   border-style none
   max-width 100%
-  transition all .2s ease 0s
+  transition opacity .2s var(--sco-ease-out), filter .2s var(--sco-ease-out), transform .3s var(--sco-ease-out)
   -webkit-user-drag none
 
 img:not([src]), img[src=""]

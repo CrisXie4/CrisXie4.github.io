@@ -1,0 +1,41 @@
+// ============================================================
+// 动效基座（motion polish）
+// 原则：入场/反馈一律强 ease-out；UI 动效 ≤300ms；只动 transform/opacity；
+// 页面主体入场在 pjax 切换后因节点重建自动重放；尊重 prefers-reduced-motion。
+// 注意：本文件在 css/index.styl 末尾导入，靠顺序覆盖前文同名规则。
+// ============================================================
+
+:root
+  --sco-ease-out: cubic-bezier(0.23, 1, 0.32, 1)
+  --sco-ease-in-out: cubic-bezier(0.77, 0, 0.175, 1)
+
+// 页面主体入场：统一曲线，替代零散的 .6s ease
+#content-inner
+  > #post
+  > #category
+  > #tag
+  > #archive
+  > #page
+    animation slide-in 0.5s 0.08s var(--sco-ease-out) backwards
+
+// 按压反馈：160ms 回弹，让点击「有回应」
+button
+  transition transform 0.16s var(--sco-ease-out), background-color 0.3s var(--sco-ease-out), color 0.3s var(--sco-ease-out), border-color 0.3s var(--sco-ease-out), box-shadow 0.3s var(--sco-ease-out)
+  &:active
+    transform scale(0.97)
+
+.site-page
+.page-number
+.rightside-item
+.bber-reply
+  transition transform 0.16s var(--sco-ease-out), color 0.3s var(--sco-ease-out), background-color 0.3s var(--sco-ease-out), border-color 0.3s var(--sco-ease-out), box-shadow 0.3s var(--sco-ease-out)
+  &:active
+    transform scale(0.96)
+
+// 尊重系统「减少动态效果」设置
+@media (prefers-reduced-motion: reduce)
+  *, *::before, *::after
+    animation-duration 0.01ms !important
+    animation-iteration-count 1 !important
+    transition-duration 0.01ms !important
+    scroll-behavior auto !important

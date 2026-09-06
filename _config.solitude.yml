@@ -998,33 +998,34 @@ CDN:
   custom_format: https://cdn.jsdelivr.net/npm/${name}@${version}/${min_file}
 
   # 直接覆盖默认 CDN 链接（优先级最高）
+  # 全部本地化：jsdelivr 在大陆不可靠，脚本加载失败会让 pjax 转场/动效整体失效
   options:
     # algolia_search:
-    # aplayer_css:
-    # aplayer_js:
+    aplayer_css: /js/vendor/APlayer.min.css
+    aplayer_js: /js/vendor/APlayer.min.js
     # artalk_css:
     # artalk_js:
     # blueimp_md5:
     # busuanzi_js:
     busuanzi_js: /js/bsz-dummy.js # 原生不蒜子已停用（刷新会重复计数），阅读量由 viewcount.js 唯一计数提供
     # chart_js:
-    # color_thief:
+    color_thief: /js/vendor/color-thief.min.js
     # fancyapps_css:
     # fancyapps_ui:
-    # fontawesome:
+    fontawesome: /fonts/fontawesome/css/all.min.css
     # instantsearch:
     # katex:
     # katex_copytex:
     # lazyload:
-    # medium_zoom:
+    medium_zoom: /js/vendor/medium-zoom.min.js
     # mermaid_js:
-    # meting_js:
-    # pace_js:
-    # pjax:
+    meting_js: /js/vendor/Meting.min.js
+    pace_js: /js/vendor/pace.min.js
+    pjax: /js/vendor/pjax.min.js
     # qrcode:
-    # snackbar:
-    # swiper_css:
-    # swiper_js:
+    snackbar: /js/vendor/snackbar.min.js
+    swiper_css: /js/vendor/swiper-bundle.min.css
+    swiper_js: /js/vendor/swiper-bundle.min.js
     # twikoo:
     # typeit_js:
     # valine:

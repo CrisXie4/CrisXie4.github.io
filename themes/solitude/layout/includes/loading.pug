@@ -27,7 +27,7 @@ script.
     });
 
     window.addEventListener('pjax:send', () => {
-        preloader.initLoading();
+        // pjax 站内跳转不再闪全屏加载页：内容原地切换 + 入场动画更丝滑，进度条由 Pace 负责
     });
 
     document.addEventListener('pjax:complete', () => {
